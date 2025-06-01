@@ -11,7 +11,7 @@ export async function getGoogleClient({ req }: { req: NextApiRequest }) {
   }
 
   const auth = new google.auth.OAuth2();
-  auth.setCredentials({ access_token: token.accessToken });
+  auth.setCredentials({ access_token: token.accessToken as string, });
 
   const calendar = google.calendar({ version: 'v3', auth });
 
