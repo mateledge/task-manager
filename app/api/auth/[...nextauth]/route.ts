@@ -1,4 +1,3 @@
-console.log("✅ route.ts 最新バージョン実行中");
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 
@@ -26,10 +25,10 @@ const handler = NextAuth({
       }
       return token;
     },
-  async session({ session, token }: any) {
-    return {
-      ...session,
-      accessToken: (token as any).access_token,
+    async session({ session, token }: any) {
+      return {
+        ...session,
+        accessToken: (token as any).access_token,
       };
     },
   },
