@@ -44,7 +44,10 @@ export default function Home() {
 
   const startVoiceInput = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return toast.error('このブラウザは音声入力に対応していません。');
+    if (!SpeechRecognition) {
+      toast.error('このブラウザは音声入力に対応していません。');
+      return;
+    }
     const recognition = new SpeechRecognition();
     recognition.lang = 'ja-JP';
     recognition.interimResults = false;
