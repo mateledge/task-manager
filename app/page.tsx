@@ -149,7 +149,6 @@ export default function Home() {
           placeholder="タスク名"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-        />
 
         <div className="space-y-2">
   <label className="text-white block">カテゴリ</label>
