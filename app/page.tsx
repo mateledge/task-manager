@@ -276,8 +276,7 @@ export default function Home() {
       </div>
 
       <hr />
-      <div className="flex justify-between items-center">
-  <h2 className="text-xl font-bold">登録済みタスク</h2>
+      <div className="flex gap-4">
   <button
     onClick={handleRestoreBackup}
     className="bg-yellow-500 px-4 py-2 rounded text-sm text-black"
@@ -285,6 +284,7 @@ export default function Home() {
     データ復元
   </button>
 </div>
+<h2 className="text-xl font-bold">登録済みタスク</h2>
       {visibleTasks.map((task) => (
         <div
           key={task.id}
@@ -322,3 +322,4 @@ export default function Home() {
   );  
 }
 ```
+
