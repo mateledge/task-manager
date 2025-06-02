@@ -122,13 +122,13 @@ export default function Home() {
           Googleでログイン
         </button>
         <div className="pt-10 text-center">
-        <button
-          onClick={() => signOut()}
-          className="bg-red-600 px-4 py-2 rounded text-white text-sm"
-        >
-          ログアウト
-        </button>
-      </div>
+  <button
+    onClick={() => signOut()}
+    className="bg-red-600 px-4 py-2 rounded text-white text-sm"
+  >
+    ログアウト
+  </button>
+</div>
     </main>
     );
   }
@@ -173,7 +173,12 @@ export default function Home() {
 
         <div className="flex items-center gap-3">
   <label className="text-white whitespace-nowrap">予定日</label>
-  <input$1type="date"$2 />
+  <input
+    type="date"
+    className="p-2 border rounded text-black"
+    value={deadline}
+    onChange={(e) => setDeadline(e.target.value)}
+  />
   <label className="flex items-center text-white text-sm gap-1">
     <input
       type="checkbox"
@@ -183,7 +188,7 @@ export default function Home() {
     />
     終日
   </label>
-</div> setDeadline(e.target.value)}
+</div>
         />
 
         {category !== '業務' && (
