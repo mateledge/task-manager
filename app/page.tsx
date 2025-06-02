@@ -132,10 +132,10 @@ export default function Home() {
   }
 
   return (
-    <main className="max-w-xl mx-auto p-4 space-y-6">
+    <main className="max-w-xl mx-auto p-4 space-y-6 text-white">
       <div className="flex items-center gap-3">
         <img src="/logo.png" alt="MATELEDGE Logo" className="w-12" />
-        <h1 className="text-2xl font-bold text-white">Task Manager</h1>
+        <h1 className="text-2xl font-bold">Task Manager</h1>
         <div className="ml-auto">
           <button
             onClick={() => signOut()}
@@ -147,10 +147,144 @@ export default function Home() {
       </div>
 
       <Toaster position="top-right" />
-      {/* 以下略、登録UI・一覧表示UIはそのまま維持 */}
-      {/* あなたの既存コードをそのまま活かせるよう内容は省略せず残しています */}
-      {/* ...中略（登録UI・一覧表示）... */}
-      {/* すでに記載済みの入力・表示UI部分をこのまま維持できます */}
+
+      {/* 入力フォーム */}
+      <div className="space-y-2">
+        <input
+          className="w-full p-2 border rounded text-black"
+          type="text"
+          placeholder="タスク名"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+
+        <label>カテゴリ</label>
+        <select
+          className="w-full p-2 border rounded text-black"
+          value={category}
+          onChange={(e) => setCategory(e.target.value as Task['category'])}
+        >
+          <option value="業務">業務（アプリ表示のみ）</option>
+          <option disabled>──────────</option>
+          <option value="外出">外出</option>
+          <option value="来客">来客</option>
+          <option value="プライベート">プライベート</option>
+          <option value="WEB">WEB</option>
+          <option value="重要">重要</option>
+        </select>
+
+        <div className="flex items-center gap-3">
+          <label className="whitespace-nowrap">予定日</label>
+          <input
+            type="date"
+            className="p-2 border rounded text-black"
+            value={deadline}
+            onChange={(e) => setDeadline(e.target.value)}
+          />
+          <label className="flex items-center text-sm gap-1">
+            <input
+              type="checkbox"
+              className="w-5 h-5"
+              checked={isAllDay}
+              onChange={() => setIsAllDay(!isAllDay)}
+            />
+            終日
+          </label>
+        </div>
+
+        {category !== '業務' && (
+          isAllDay ? (
+            <>
+              <label>何日間</label>
+              <select
+                className="w-full p-2 border rounded text-black"
+                value={days}
+                onChange={(e) => setDays(Number(e.target.value))}
+              >
+                {[...Array(30)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1} 日間
+                  </option>
+                ))}
+              </select>
+            </>
+          ) : (
+            <>
+              <label>開始時間</label>
+              <select
+                className="w-full p-2 border rounded text-black"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+              >
+                <option value="">選択</option>
+                {Array.from({ length: 24 * 4 }, (_, i) => {
+                  const h = String(Math.floor(i / 4)).padStart(2, '0');
+                  const m = String((i % 4) * 15).padStart(2, '0');
+                  return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>;
+                })}
+              </select>
+
+              <label>所要時間</label>
+              <select
+                className="w-full p-2 border rounded text-black"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+              >
+                <option value="">選択</option>
+                {Array.from({ length: 24 * 4 }, (_, i) => {
+                  const h = String(Math.floor(i / 4)).padStart(2, '0');
+                  const m = String((i % 4) * 15).padStart(2, '0');
+                  return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>;
+                })}
+              </select>
+            </>
+          )
+        )}
+
+        <button
+          className="w-full bg-blue-500 text-white py-2 rounded"
+          onClick={handleAddTask}
+        >
+          登録
+        </button>
+      </div>
+
+      {/* 登録済みタスク一覧 */}
+      <hr />
+      <h2 className="text-xl font-bold">登録済みタスク</h2>
+      {visibleTasks.map((task) => (
+        <div
+          key={task.id}
+          className={`p-3 rounded border mb-4 shadow-md transition hover:scale-[1.01] ${
+            task.completed ? 'bg-gray-400' : 'bg-white'
+          }`}
+        >
+          <div className="text-black font-bold">{task.title}</div>
+          <div className="text-sm text-gray-600">予定日: {task.deadline}</div>
+          {task.category !== '業務' && !task.isAllDay && (
+            <div className="text-sm text-gray-700">
+              {task.startTime} ～ {task.duration}
+            </div>
+          )}
+          {task.category !== '業務' && task.isAllDay && (
+            <div className="text-sm text-gray-700">終日（{task.days}日間）</div>
+          )}
+          <div className="mt-4 flex justify-between text-sm">
+            <button
+              className="text-blue-600 underline"
+              onClick={() => handleToggleComplete(task.id)}
+            >
+              {task.completed ? '戻す' : '完了'}
+            </button>
+            <button
+              className="text-red-600 underline"
+              onClick={() => handleDeleteTask(task.id)}
+            >
+              削除
+            </button>
+          </div>
+        </div>
+      ))}
     </main>
   );
 }
