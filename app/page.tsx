@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -47,6 +48,7 @@ export default function Home() {
   const [duration, setDuration] = useState('');
   const [isAllDay, setIsAllDay] = useState(false);
   const [days, setDays] = useState(1);
+  const [showForm, setShowForm] = useState(false);
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
@@ -123,6 +125,7 @@ export default function Home() {
     setDuration('');
     setIsAllDay(false);
     setDays(1);
+    setShowForm(false);
   };
 
   const handleDeleteTask = (id: number) => {
@@ -194,131 +197,147 @@ export default function Home() {
     );
   }
   return (
-    <main className="max-w-7xl mx-auto p-4 text-white space-y-6">
+    <main className="max-w-7xl mx-auto p-4 text-white space-y-4">
       <Toaster position="top-right" />
-      <div className="flex items-center gap-3">
-        <img src="/logo.png" alt="MATELEDGE Logo" className="w-12" />
-        <h1 className="text-2xl font-bold">Task Manager</h1>
-        <div className="ml-auto">
-          <button
-            onClick={() => signOut()}
-            className="bg-red-600 px-4 py-2 rounded text-white text-sm"
-          >
-            ログアウト
-          </button>
+
+      {/* 1段目: タイトル & ログアウト */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <img src="/logo.png" alt="MATELEDGE Logo" className="w-12" />
+          <h1 className="text-2xl font-bold">Task Manager</h1>
         </div>
+        <button
+          onClick={() => signOut()}
+          className="bg-red-600 px-4 py-2 rounded text-white text-sm"
+        >
+          ログアウト
+        </button>
       </div>
 
-      {/* 入力フォーム */}
-      <div className="space-y-2">
-        <input
-          className="w-full p-2 border rounded text-black"
-          type="text"
-          placeholder="タスク名"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-
-        <select
-          className="w-full p-2 border rounded text-black"
-          value={category}
-          onChange={(e) => setCategory(e.target.value as Task['category'])}
-        >
-          <option value="業務">業務（アプリ表示）</option>
-          <option disabled>──────────</option>
-          <option value="外出">外出</option>
-          <option value="来客">来客</option>
-          <option value="プライベート">プライベート</option>
-          <option value="WEB">WEB</option>
-          <option value="重要">重要</option>
-          <option disabled>──────────</option>
-          <option value="メモ">メモ（別一覧）</option>
-        </select>
-
-        {category !== 'メモ' && (
-          <>
-            <div className="flex items-center gap-3">
-              <label className="whitespace-nowrap">予定日</label>
-              <input
-                type="date"
-                className="p-2 border rounded text-black"
-                value={deadline}
-                onChange={(e) => setDeadline(e.target.value)}
-              />
-              <button
-                onClick={handleRestoreBackup}
-                className="bg-yellow-500 px-2 py-1 rounded text-sm text-black"
-              >
-                データ復元
-              </button>
-            </div>
-
-            {category !== '業務' && (
-              <>
-                <label>終日</label>
-                <input
-                  type="checkbox"
-                  checked={isAllDay}
-                  onChange={() => setIsAllDay(!isAllDay)}
-                />
-
-                {!isAllDay && (
-                  <>
-                    <label>開始時間</label>
-                    <select
-                      className="w-full p-2 border rounded text-black"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                    >
-                      <option value="">選択</option>
-                      {Array.from({ length: ((23 - 6) * 4) + 1 }, (_, i) => {
-                        const totalMinutes = (6 * 60) + (i * 15);
-                        const h = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
-                        const m = String(totalMinutes % 60).padStart(2, '0');
-                        return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>;
-                      })}
-                    </select>
-
-                    <label>所要時間</label>
-                    <select
-                      className="w-full p-2 border rounded text-black"
-                      value={duration}
-                      onChange={(e) => setDuration(e.target.value)}
-                    >
-                      <option value="">選択</option>
-                      {[...Array(8)].map((_, i) => (
-                        <option key={i + 1} value={`${i + 1}:00`}>
-                          {`${i + 1}時間`}
-                        </option>
-                      ))}
-                    </select>
-                  </>
-                )}
-              </>
-            )}
-          </>
-        )}
-
-        <button
-          className="w-full bg-blue-500 text-white py-2 rounded"
-          onClick={handleAddTask}
-        >
-          {category === '業務' || category === 'メモ' ? '登録' : 'Googleカレンダー登録'}
-        </button>
-
+      {/* 2段目: Googleカレンダー */}
+      <div>
         <a
           href="https://calendar.google.com/calendar/u/0/r/month"
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-2 block text-center bg-green-600 text-white py-2 rounded"
+          className="block text-center bg-green-600 text-white py-2 rounded"
         >
           Googleカレンダーを開く
         </a>
       </div>
 
-      {/* 一覧表示（メモ下・管理タスク上） */}
+      {/* 3段目: ＋ボタンとデータ復元 */}
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="bg-blue-500 px-4 py-2 rounded text-white"
+        >
+          ＋
+        </button>
+        <button
+          onClick={handleRestoreBackup}
+          className="bg-yellow-500 px-4 py-2 rounded text-black"
+        >
+          データ復元
+        </button>
+      </div>
+
+      {/* 4段目: 入力フォーム（＋を押したときだけ表示） */}
+      {showForm && (
+        <div className="space-y-2 border border-gray-400 p-4 rounded">
+          <input
+            className="w-full p-2 border rounded text-black"
+            type="text"
+            placeholder="タスク名"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+
+          <div className="flex gap-2">
+            <select
+              className="w-1/3 p-2 border rounded text-black"
+              value={category}
+              onChange={(e) => setCategory(e.target.value as Task['category'])}
+            >
+              <option value="業務">業務（アプリ表示）</option>
+              <option value="外出">外出</option>
+              <option value="来客">来客</option>
+              <option value="プライベート">プライベート</option>
+              <option value="WEB">WEB</option>
+              <option value="重要">重要</option>
+              <option value="メモ">メモ（別一覧）</option>
+            </select>
+
+            {category !== 'メモ' && (
+              <>
+                <input
+                  type="date"
+                  className="p-2 border rounded text-black w-1/3"
+                  value={deadline}
+                  onChange={(e) => setDeadline(e.target.value)}
+                />
+                <label className="flex items-center text-sm gap-1 w-1/3">
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5"
+                    checked={isAllDay}
+                    onChange={() => setIsAllDay(!isAllDay)}
+                  />
+                  終日
+                </label>
+              </>
+            )}
+          </div>
+
+          {category !== '業務' && category !== 'メモ' && !isAllDay && (
+            <>
+              <div>
+                <label>開始時間</label>
+                <select
+                  className="w-full p-2 border rounded text-black"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                >
+                  <option value="">選択</option>
+                  {Array.from({ length: ((23 - 6) * 4) + 1 }, (_, i) => {
+                    const totalMinutes = (6 * 60) + (i * 15);
+                    const h = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+                    const m = String(totalMinutes % 60).padStart(2, '0');
+                    return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>;
+                  })}
+                </select>
+              </div>
+
+              <div>
+                <label>所要時間</label>
+                <select
+                  className="w-full p-2 border rounded text-black"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                >
+                  <option value="">選択</option>
+                  {[...Array(8)].map((_, i) => (
+                    <option key={i + 1} value={`${i + 1}:00`}>
+                      {`${i + 1}時間`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          <button
+            className="w-full bg-blue-600 text-white py-2 rounded"
+            onClick={handleAddTask}
+          >
+            {category === '業務' || category === 'メモ' ? '登録' : 'Googleカレンダー登録'}
+          </button>
+        </div>
+      )}
+
+      {/* 一覧表示 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
-        {/* 管理タスク一覧（PC左、スマホ上） */}
+        {/* 管理タスク一覧 */}
         <div>
           <h2 className="text-xl font-bold">管理タスク</h2>
           {visibleTasks.map((task) => (
@@ -361,7 +380,7 @@ export default function Home() {
           ))}
         </div>
 
-        {/* メモ一覧（PC右、スマホ下） */}
+        {/* メモ一覧 */}
         <div>
           <h2 className="text-xl font-bold">メモ一覧</h2>
           {memos.map((memo) => (
