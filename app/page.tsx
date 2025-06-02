@@ -148,19 +148,25 @@ export default function Home() {
           onChange={(e) => setTitle(e.target.value)}
         />
 
-        <div className="flex gap-4 flex-wrap">
-          {['業務', '外出', '来客', 'プライベート', 'WEB', '重要'].map((c) => (
-            <label key={c}>
-              <input
-                type="radio"
-                value={c}
-                checked={category === c}
-                onChange={() => setCategory(c as Task['category'])}
-              />
-              <span className="ml-1 text-white">{c}</span>
-            </label>
-          ))}
-        </div>
+        <div className="space-y-2">
+  <label className="text-white block">カテゴリ</label>
+  <select
+    className="w-full p-2 border rounded text-black"
+    value={category}
+    onChange={(e) => setCategory(e.target.value as Task['category'])}
+  >
+    <option value="業務">業務（アプリ表示のみ）</option>
+    <option disabled>──────────</option>
+    <option value="外出">外出</option>
+    <option value="来客">来客</option>
+    <option value="プライベート">プライベート</option>
+    <option value="WEB">WEB</option>
+    <option value="重要">重要</option>
+  </select>
+  {category !== '業務' && (
+    <p className="text-sm text-white mt-1">※ Googleカレンダーに登録されます</p>
+  )}
+</div>
 
         <label className="text-white">予定日</label>
         <input
