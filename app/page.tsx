@@ -207,7 +207,7 @@ export default function Home() {
 
       {/* 1段目: タイトル & ログアウト */}
       <div className="flex justify-between items-center">
-        <div class="flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <img src="/logo.png" alt="MATELEDGE Logo" className="w-12" />
           <h1 className="text-2xl font-bold">Task Manager</h1>
         </div>
