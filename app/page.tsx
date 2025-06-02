@@ -74,7 +74,6 @@ export default function Home() {
 
     setTasks([...tasks, newTask]);
 
-    // Googleカレンダー登録（業務以外）
     if (session && category !== '業務') {
       const resolvedStart = isAllDay
         ? deadline
@@ -113,6 +112,11 @@ export default function Home() {
     setTasks(tasks.map(task =>
       task.id === id ? { ...task, completed: !task.completed } : task
     ));
+  };
+
+  const handleDeleteTask = (id: number) => {
+    setTasks(tasks.filter(task => task.id !== id));
+    toast.success('削除しました');
   };
 
   const visibleTasks = tasks
@@ -269,12 +273,20 @@ export default function Home() {
           {task.category !== '業務' && task.isAllDay && (
             <div className="text-sm text-gray-700">終日（{task.days}日間）</div>
           )}
-          <button
-            className="mt-2 text-sm text-blue-600 underline"
-            onClick={() => handleToggleComplete(task.id)}
-          >
-            {task.completed ? '戻す' : '完了'}
-          </button>
+          <div className="mt-2 flex gap-4 text-sm">
+            <button
+              className="text-blue-600 underline"
+              onClick={() => handleToggleComplete(task.id)}
+            >
+              {task.completed ? '戻す' : '完了'}
+            </button>
+            <button
+              className="text-red-600 underline"
+              onClick={() => handleDeleteTask(task.id)}
+            >
+              削除
+            </button>
+          </div>
         </div>
       ))}
     </main>
