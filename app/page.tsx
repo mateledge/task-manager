@@ -210,14 +210,17 @@ export default function Home() {
             </label>
 
             {isAllDay ? (
-              <input
+              <select
                 className="w-full p-2 border rounded text-black"
-                type="number"
-                min={1}
                 value={days}
                 onChange={(e) => setDays(Number(e.target.value))}
-                placeholder="何日間"
-              />
+              >
+                {[...Array(30)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1} 日間
+                  </option>
+                ))}
+              </select>
             ) : (
               <>
                 <select
@@ -261,7 +264,7 @@ export default function Home() {
       {visibleTasks.map((task) => (
         <div
           key={task.id}
-          className={`p-3 rounded border mb-2 ${task.completed ? 'bg-gray-400' : 'bg-white'}`}
+          className={`p-3 rounded border mb-4 ${task.completed ? 'bg-gray-400' : 'bg-white'}`}
         >
           <div className="text-black font-bold">{task.title}</div>
           <div className="text-sm text-gray-600">期限: {task.deadline}</div>
@@ -273,7 +276,7 @@ export default function Home() {
           {task.category !== '業務' && task.isAllDay && (
             <div className="text-sm text-gray-700">終日（{task.days}日間）</div>
           )}
-          <div className="mt-2 flex gap-4 text-sm">
+          <div className="mt-3 flex flex-wrap gap-6 text-sm">
             <button
               className="text-blue-600 underline"
               onClick={() => handleToggleComplete(task.id)}
