@@ -254,9 +254,7 @@ export default function Home() {
       {visibleTasks.map((task) => (
         <div
           key={task.id}
-          className={`p-3 rounded border mb-4 ${
-            task.completed ? 'bg-gray-400' : 'bg-white'
-          }`}
+          className={`p-3 rounded border mb-4 shadow-md transition hover:scale-[1.01] ${task.completed ? 'bg-gray-400' : 'bg-white'}`}
         >
           <div className="text-black font-bold">{task.title}</div>
           <div className="text-sm text-gray-600">予定日: {task.deadline}</div>
