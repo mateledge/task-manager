@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -18,8 +18,6 @@ type Task = {
 
 export default function Home() {
   const { data: session, status } = useSession();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [tasks, setTasks] = useState<Task[]>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('tasks');
@@ -40,19 +38,6 @@ export default function Home() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  const downloadBackup = (taskList: Task[]) => {
-    const today = new Date().toISOString().slice(0, 10);
-    const blob = new Blob([JSON.stringify(taskList, null, 2)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `tasks-backup-${today}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   const handleAddTask = async () => {
     if (!title || !deadline) return;
 
@@ -72,7 +57,7 @@ export default function Home() {
     setTasks(updatedTasks);
 
     if (category === '業務') {
-      downloadBackup(updatedTasks);
+      localStorage.setItem('backupTasks', JSON.stringify(updatedTasks));
     }
 
     if (session && category !== '業務') {
@@ -122,25 +107,23 @@ export default function Home() {
     toast.success('削除しました');
   };
 
-  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const imported = JSON.parse(event.target?.result as string);
-        if (Array.isArray(imported)) {
-          setTasks(imported);
-          toast.success('データ復元しました');
-        } else {
-          toast.error('不正なファイル形式です');
-        }
-      } catch {
-        toast.error('読み込みエラーが発生しました');
+  const handleRestoreBackup = () => {
+    const backup = localStorage.getItem('backupTasks');
+    if (!backup) {
+      toast.error('バックアップがありません');
+      return;
+    }
+    try {
+      const parsed = JSON.parse(backup);
+      if (Array.isArray(parsed)) {
+        setTasks(parsed);
+        toast.success('データ復元しました');
+      } else {
+        toast.error('不正なバックアップデータです');
       }
-    };
-    reader.readAsText(file);
+    } catch {
+      toast.error('バックアップの読み込みに失敗しました');
+    }
   };
 
   const visibleTasks = tasks.sort((a, b) => {
@@ -193,21 +176,13 @@ export default function Home() {
 
       <div className="flex gap-4">
         <button
-          onClick={() => fileInputRef.current?.click()}
+          onClick={handleRestoreBackup}
           className="bg-yellow-500 px-4 py-2 rounded text-sm text-black"
         >
           データ復元
         </button>
-        <input
-          type="file"
-          ref={fileInputRef}
-          accept=".json"
-          onChange={handleImport}
-          className="hidden"
-        />
       </div>
 
-      {/* タスク登録フォーム */}
       <div className="space-y-2">
         <input
           className="w-full p-2 border rounded text-black"
@@ -307,7 +282,6 @@ export default function Home() {
         </button>
       </div>
 
-      {/* 登録済みタスク一覧 */}
       <hr />
       <h2 className="text-xl font-bold">登録済みタスク</h2>
       {visibleTasks.map((task) => (
@@ -344,5 +318,5 @@ export default function Home() {
         </div>
       ))}
     </main>
-  );
+  );  
 }
