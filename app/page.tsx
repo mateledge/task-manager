@@ -47,7 +47,6 @@ export default function Home() {
   const [duration, setDuration] = useState('');
   const [isAllDay, setIsAllDay] = useState(false);
   const [days, setDays] = useState(1);
-
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
@@ -55,6 +54,7 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem('memos', JSON.stringify(memos));
   }, [memos]);
+
   const handleAddTask = async () => {
     if (!title) return;
 
@@ -70,20 +70,19 @@ export default function Home() {
 
     if (!deadline) return;
 
-const isSpecialCategory = ['業務', 'メモ'].includes(category);
+    const isSpecialCategory = ['業務', 'メモ'].includes(category);
 
-const newTask: Task = {
-  id: Date.now(),
-  title,
-  category,
-  deadline,
-  startTime: category === '業務' || isAllDay ? undefined : startTime,
-  duration: category === '業務' || isAllDay ? undefined : duration,
-  isAllDay: isSpecialCategory ? undefined : isAllDay,
-  days: isSpecialCategory ? undefined : isAllDay ? days : undefined,
-  completed: false,
-};
-
+    const newTask: Task = {
+      id: Date.now(),
+      title,
+      category,
+      deadline,
+      startTime: category === '業務' || isAllDay ? undefined : startTime,
+      duration: category === '業務' || isAllDay ? undefined : duration,
+      isAllDay: isSpecialCategory ? undefined : isAllDay,
+      days: isSpecialCategory ? undefined : isAllDay ? days : undefined,
+      completed: false,
+    };
 
     const updatedTasks = [...tasks, newTask];
     setTasks(updatedTasks);
@@ -136,6 +135,25 @@ const newTask: Task = {
     toast.success('完全削除しました');
   };
 
+  const handleRestoreBackup = () => {
+    const backup = localStorage.getItem('backupTasks');
+    if (!backup) {
+      toast.error('バックアップがありません');
+      return;
+    }
+    try {
+      const parsed = JSON.parse(backup);
+      if (Array.isArray(parsed)) {
+        setTasks(parsed);
+        toast.success('データ復元しました');
+      } else {
+        toast.error('不正なバックアップデータです');
+      }
+    } catch {
+      toast.error('バックアップの読み込みに失敗しました');
+    }
+  };
+
   const handleToggleComplete = (id: number) => {
     setTasks((prev) =>
       prev.map((task) =>
@@ -143,9 +161,13 @@ const newTask: Task = {
       )
     );
   };
+
   const visibleTasks = tasks
     .filter((task) => task.category === '業務')
-    .sort((a, b) => a.deadline.localeCompare(b.deadline));
+    .sort((a, b) => {
+      if (a.completed !== b.completed) return a.completed ? 1 : -1;
+      return a.deadline.localeCompare(b.deadline);
+    });
 
   if (status === 'loading') {
     return <main className="text-white p-8">読み込み中...</main>;
@@ -171,7 +193,6 @@ const newTask: Task = {
       </main>
     );
   }
-
   return (
     <main className="max-w-7xl mx-auto p-4 text-white space-y-6">
       <Toaster position="top-right" />
@@ -216,55 +237,63 @@ const newTask: Task = {
 
         {category !== 'メモ' && (
           <>
+            <div className="flex items-center gap-3">
+              <label className="whitespace-nowrap">予定日</label>
+              <input
+                type="date"
+                className="p-2 border rounded text-black"
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
+              />
+              <button
+                onClick={handleRestoreBackup}
+                className="bg-yellow-500 px-2 py-1 rounded text-sm text-black"
+              >
+                データ復元
+              </button>
+            </div>
+
             {category !== '業務' && (
               <>
-                <label className="block">終日</label>
+                <label>終日</label>
                 <input
                   type="checkbox"
                   checked={isAllDay}
                   onChange={() => setIsAllDay(!isAllDay)}
                 />
-              </>
-            )}
 
-            <label className="block mt-2">予定日</label>
-            <input
-              type="date"
-              className="w-full p-2 border rounded text-black"
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-            />
+                {!isAllDay && (
+                  <>
+                    <label>開始時間</label>
+                    <select
+                      className="w-full p-2 border rounded text-black"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                    >
+                      <option value="">選択</option>
+                      {Array.from({ length: ((23 - 6) * 4) + 1 }, (_, i) => {
+                        const totalMinutes = (6 * 60) + (i * 15);
+                        const h = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+                        const m = String(totalMinutes % 60).padStart(2, '0');
+                        return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>;
+                      })}
+                    </select>
 
-            {category !== '業務' && !isAllDay && (
-              <>
-                <label>開始時間</label>
-                <select
-                  className="w-full p-2 border rounded text-black"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                >
-                  <option value="">選択</option>
-                  {Array.from({ length: ((23 - 6) * 4) + 1 }, (_, i) => {
-                    const totalMinutes = (6 * 60) + (i * 15);
-                    const h = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
-                    const m = String(totalMinutes % 60).padStart(2, '0');
-                    return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>;
-                  })}
-                </select>
-
-                <label>所要時間</label>
-                <select
-                  className="w-full p-2 border rounded text-black"
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                >
-                  <option value="">選択</option>
-                  {[...Array(8)].map((_, i) => (
-                    <option key={i + 1} value={`${i + 1}:00`}>
-                      {`${i + 1}時間`}
-                    </option>
-                  ))}
-                </select>
+                    <label>所要時間</label>
+                    <select
+                      className="w-full p-2 border rounded text-black"
+                      value={duration}
+                      onChange={(e) => setDuration(e.target.value)}
+                    >
+                      <option value="">選択</option>
+                      {[...Array(8)].map((_, i) => (
+                        <option key={i + 1} value={`${i + 1}:00`}>
+                          {`${i + 1}時間`}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                )}
               </>
             )}
           </>
@@ -287,25 +316,9 @@ const newTask: Task = {
         </a>
       </div>
 
-      {/* 一覧表示（横並び） */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* メモ一覧 */}
-        <div>
-          <h2 className="text-xl font-bold">メモ一覧</h2>
-          {memos.map((memo) => (
-            <div key={memo.id} className="bg-white text-black p-3 rounded border mb-2 shadow">
-              <div className="font-bold">{memo.title}</div>
-              <button
-                className="text-red-600 underline mt-2"
-                onClick={() => handleDeleteMemo(memo.id)}
-              >
-                完全削除
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {/* 管理タスク一覧 */}
+      {/* 一覧表示（メモ下・管理タスク上） */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
+        {/* 管理タスク一覧（PC左、スマホ上） */}
         <div>
           <h2 className="text-xl font-bold">管理タスク</h2>
           {visibleTasks.map((task) => (
@@ -347,7 +360,29 @@ const newTask: Task = {
             </div>
           ))}
         </div>
+
+        {/* メモ一覧（PC右、スマホ下） */}
+        <div>
+          <h2 className="text-xl font-bold">メモ一覧</h2>
+          {memos.map((memo) => (
+            <div
+              key={memo.id}
+              className="bg-white text-black p-3 rounded border mb-2 shadow"
+            >
+              <div className="flex justify-between items-center">
+                <div className="font-bold">{memo.title}</div>
+                <button
+                  className="text-red-600 underline text-sm"
+                  onClick={() => handleDeleteMemo(memo.id)}
+                >
+                  完全削除
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </main>
   );
 }
+
