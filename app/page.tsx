@@ -151,7 +151,7 @@ export default function Home() {
     <main className="max-w-xl mx-auto p-4 space-y-6">
       <Toaster position="top-right" />
       <div className="flex justify-between items-center">
-        <p className="text-white">こんにちは、{session.user?.name} さん</p>
+        <h1 className="text-2xl font-bold text-white">MATELEDGE Task Manager</h1>
         <button
           onClick={() => signOut()}
           className="bg-red-600 px-3 py-1 rounded text-white"
@@ -159,8 +159,6 @@ export default function Home() {
           ログアウト
         </button>
       </div>
-
-      <h1 className="text-2xl font-bold text-white">タスク登録</h1>
 
       <div className="space-y-2">
         <input
@@ -191,6 +189,7 @@ export default function Home() {
           ))}
         </div>
 
+        <label className="text-white">予定日</label>
         <input
           className="w-full p-2 border rounded text-black"
           type="date"
@@ -210,19 +209,23 @@ export default function Home() {
             </label>
 
             {isAllDay ? (
-              <select
-                className="w-full p-2 border rounded text-black"
-                value={days}
-                onChange={(e) => setDays(Number(e.target.value))}
-              >
-                {[...Array(30)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1} 日間
-                  </option>
-                ))}
-              </select>
+              <>
+                <label className="text-white">何日間</label>
+                <select
+                  className="w-full p-2 border rounded text-black"
+                  value={days}
+                  onChange={(e) => setDays(Number(e.target.value))}
+                >
+                  {[...Array(30)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} 日間
+                    </option>
+                  ))}
+                </select>
+              </>
             ) : (
               <>
+                <label className="text-white">開始時間</label>
                 <select
                   className="w-full p-2 border rounded text-black"
                   value={startTime}
@@ -234,6 +237,7 @@ export default function Home() {
                   ))}
                 </select>
 
+                <label className="text-white">所要時間</label>
                 <select
                   className="w-full p-2 border rounded text-black"
                   value={duration}
@@ -267,7 +271,7 @@ export default function Home() {
           className={`p-3 rounded border mb-4 ${task.completed ? 'bg-gray-400' : 'bg-white'}`}
         >
           <div className="text-black font-bold">{task.title}</div>
-          <div className="text-sm text-gray-600">期限: {task.deadline}</div>
+          <div className="text-sm text-gray-600">予定日: {task.deadline}</div>
           {task.category !== '業務' && !task.isAllDay && (
             <div className="text-sm text-gray-700">
               {task.startTime} ～ {task.duration}
@@ -276,7 +280,7 @@ export default function Home() {
           {task.category !== '業務' && task.isAllDay && (
             <div className="text-sm text-gray-700">終日（{task.days}日間）</div>
           )}
-          <div className="mt-3 flex flex-wrap gap-6 text-sm">
+          <div className="mt-4 flex justify-between text-sm">
             <button
               className="text-blue-600 underline"
               onClick={() => handleToggleComplete(task.id)}
