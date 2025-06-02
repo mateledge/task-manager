@@ -1,3 +1,5 @@
+// page.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -54,10 +56,9 @@ export default function Home() {
       completed: false,
     };
 
-    const updatedTasks = [...tasks, newTask];
-    setTasks(updatedTasks);
-
     if (category === '業務') {
+      const updatedTasks = [...tasks, newTask];
+      setTasks(updatedTasks);
       localStorage.setItem('backupTasks', JSON.stringify(updatedTasks));
     }
 
@@ -127,12 +128,14 @@ export default function Home() {
     }
   };
 
-  const visibleTasks = tasks.sort((a, b) => {
-    if (a.completed !== b.completed) return a.completed ? 1 : -1;
-    if (a.deadline < new Date().toISOString().slice(0, 10)) return -1;
-    if (b.deadline < new Date().toISOString().slice(0, 10)) return 1;
-    return a.deadline.localeCompare(b.deadline);
-  });
+  const visibleTasks = tasks
+    .filter((task) => task.category === '業務') // 表示も業務のみに限定
+    .sort((a, b) => {
+      if (a.completed !== b.completed) return a.completed ? 1 : -1;
+      if (a.deadline < new Date().toISOString().slice(0, 10)) return -1;
+      if (b.deadline < new Date().toISOString().slice(0, 10)) return 1;
+      return a.deadline.localeCompare(b.deadline);
+    });
 
   if (status === 'loading') {
     return <main className="text-white p-8">読み込み中...</main>;
@@ -276,11 +279,11 @@ export default function Home() {
         )}
 
         <button
-  className="w-full bg-blue-500 text-white py-2 rounded"
-  onClick={handleAddTask}
->
-  {category === '業務' ? '登録' : 'Googleカレンダー登録'}
-</button>
+          className="w-full bg-blue-500 text-white py-2 rounded"
+          onClick={handleAddTask}
+        >
+          {category === '業務' ? '登録' : 'Googleカレンダー登録'}
+        </button>
       </div>
 
       <hr />
@@ -303,32 +306,32 @@ export default function Home() {
             <div className="text-sm text-gray-700">終日（{task.days}日間）</div>
           )}
           <div className="mt-4 flex justify-between text-sm">
-  <div className="flex gap-4">
-    <button
-      className="text-blue-600 underline"
-      onClick={() => handleToggleComplete(task.id)}
-    >
-      {task.completed ? '戻す' : '完了'}
-    </button>
-    <button
-      className="text-green-600 underline"
-      onClick={() => {
-        setTitle(task.title);
-        setDeadline(task.deadline);
-        setTasks((prev) => prev.filter((t) => t.id !== task.id));
-        toast.success('タスクを修正モードで開きました');
-      }}
-    >
-      修正
-    </button>
-  </div>
-  <button
-    className="text-red-600 underline"
-    onClick={() => handleDeleteTask(task.id)}
-  >
-    削除
-  </button>
-</div>
+            <div className="flex gap-4">
+              <button
+                className="text-blue-600 underline"
+                onClick={() => handleToggleComplete(task.id)}
+              >
+                {task.completed ? '戻す' : '完了'}
+              </button>
+              <button
+                className="text-green-600 underline"
+                onClick={() => {
+                  setTitle(task.title);
+                  setDeadline(task.deadline);
+                  setTasks((prev) => prev.filter((t) => t.id !== task.id));
+                  toast.success('タスクを修正モードで開きました');
+                }}
+              >
+                修正
+              </button>
+            </div>
+            <button
+              className="text-red-600 underline"
+              onClick={() => handleDeleteTask(task.id)}
+            >
+              削除
+            </button>
+          </div>
         </div>
       ))}
     </main>
