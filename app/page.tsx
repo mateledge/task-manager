@@ -122,136 +122,130 @@ export default function Home() {
           Googleでログイン
         </button>
         <div className="pt-10 text-center">
-  <button
-    onClick={() => signOut()}
-    className="bg-red-600 px-4 py-2 rounded text-white text-sm"
-  >
-    ログアウト
-  </button>
-</div>
-    </main>
+          <button
+            onClick={() => signOut()}
+            className="bg-red-600 px-4 py-2 rounded text-white text-sm"
+          >
+            ログアウト
+          </button>
+        </div>
+      </main>
     );
   }
 
   return (
     <main className="max-w-xl mx-auto p-4 space-y-6">
       <div className="flex items-center gap-3">
-  <img src="/logo.png" alt="MATELEDGE Logo" className="w-12" />
-  <h1 className="text-2xl font-bold text-white">Task Manager</h1>
-</div>
+        <img src="/logo.png" alt="MATELEDGE Logo" className="w-12" />
+        <h1 className="text-2xl font-bold text-white">Task Manager</h1>
+      </div>
       <Toaster position="top-right" />
-      
 
       <div className="space-y-2">
-        <input$1onChange={(e) => setTitle(e.target.value)}
-
-        <div className="space-y-2">
-  <label className="text-white block">カテゴリ</label>
-  <select
-    className="w-full p-2 border rounded text-black"
-    value={category}
-    onChange={(e) => setCategory(e.target.value as Task['category'])}
-  >
-    <option value="業務">業務（アプリ表示のみ）</option>
-    <option disabled>──────────</option>
-    <option value="外出">外出</option>
-    <option value="来客">来客</option>
-    <option value="プライベート">プライベート</option>
-    <option value="WEB">WEB</option>
-    <option value="重要">重要</option>
-  </select>
-  {category !== '業務' && (
-    <p className="text-sm text-white mt-1">※ Googleカレンダーに登録されます</p>
-  )}
-</div>
-
-        <div className="flex items-center gap-3">
-  <label className="text-white whitespace-nowrap">予定日</label>
-  <input
-    type="date"
-    className="p-2 border rounded text-black"
-    value={deadline}
-    onChange={(e) => setDeadline(e.target.value)}
-  <label className="flex items-center text-white text-sm gap-1">
-    <input
-      type="checkbox"
-      className="w-5 h-5"
-      checked={isAllDay}
-      onChange={() => setIsAllDay(!isAllDay)}
-    />
-    終日
-  </label>
-</div>
+        <input
+          className="w-full p-2 border rounded text-black"
+          type="text"
+          placeholder="タスク名"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
 
+        <div className="space-y-2">
+          <label className="text-white block">カテゴリ</label>
+          <select
+            className="w-full p-2 border rounded text-black"
+            value={category}
+            onChange={(e) => setCategory(e.target.value as Task['category'])}
+          >
+            <option value="業務">業務（アプリ表示のみ）</option>
+            <option disabled>──────────</option>
+            <option value="外出">外出</option>
+            <option value="来客">来客</option>
+            <option value="プライベート">プライベート</option>
+            <option value="WEB">WEB</option>
+            <option value="重要">重要</option>
+          </select>
+          {category !== '業務' && (
+            <p className="text-sm text-white mt-1">※ Googleカレンダーに登録されます</p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <label className="text-white whitespace-nowrap">予定日</label>
+          <input
+            type="date"
+            className="p-2 border rounded text-black"
+            value={deadline}
+            onChange={(e) => setDeadline(e.target.value)}
+          />
+          <label className="flex items-center text-white text-sm gap-1">
+            <input
+              type="checkbox"
+              className="w-5 h-5"
+              checked={isAllDay}
+              onChange={() => setIsAllDay(!isAllDay)}
+            />
+            終日
+          </label>
+        </div>
+
         {category !== '業務' && (
-          <>
-            <label className="flex items-center gap-2 text-white">
-              <input
-                type="checkbox"
-                checked={isAllDay}
-                onChange={() => setIsAllDay(!isAllDay)}
-              />
-              終日
-            </label>
-
-            {isAllDay ? (
-              <>
-                <label className="text-white">何日間</label>
-                <select
-                  className="w-full p-2 border rounded text-black"
-                  value={days}
-                  onChange={(e) => setDays(Number(e.target.value))}
-                >
-                  {[...Array(30)].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1} 日間
+          isAllDay ? (
+            <>
+              <label className="text-white">何日間</label>
+              <select
+                className="w-full p-2 border rounded text-black"
+                value={days}
+                onChange={(e) => setDays(Number(e.target.value))}
+              >
+                {[...Array(30)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1} 日間
+                  </option>
+                ))}
+              </select>
+            </>
+          ) : (
+            <>
+              <label className="text-white">開始時間</label>
+              <select
+                className="w-full p-2 border rounded text-black"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+              >
+                <option value="">開始時間を選択</option>
+                {Array.from({ length: 24 * 4 }, (_, i) => {
+                  const hours = Math.floor(i / 4);
+                  const minutes = (i % 4) * 15;
+                  const time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                  return (
+                    <option key={time} value={time}>
+                      {time}
                     </option>
-                  ))}
-                </select>
-              </>
-            ) : (
-              <>
-                <label className="text-white">開始時間</label>
-                <select
-                  className="w-full p-2 border rounded text-black"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                >
-                  <option value="">開始時間を選択</option>
-                  {Array.from({ length: 24 * 4 }, (_, i) => {
-                    const hours = Math.floor(i / 4);
-                    const minutes = (i % 4) * 15;
-                    const time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-                    return (
-                      <option key={time} value={time}>
-                        {time}
-                      </option>
-                    );
-                  })}
-                </select>
+                  );
+                })}
+              </select>
 
-                <label className="text-white">所要時間</label>
-                <select
-                  className="w-full p-2 border rounded text-black"
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                >
-                  <option value="">所要時間を選択</option>
-                  {Array.from({ length: 24 * 4 }, (_, i) => {
-                    const hours = Math.floor(i / 4);
-                    const minutes = (i % 4) * 15;
-                    const time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-                    return (
-                      <option key={time} value={time}>
-                        {time}
-                      </option>
-                    );
-                  })}
-                </select>
-              </>
-            )}
-          </>
+              <label className="text-white">所要時間</label>
+              <select
+                className="w-full p-2 border rounded text-black"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+              >
+                <option value="">所要時間を選択</option>
+                {Array.from({ length: 24 * 4 }, (_, i) => {
+                  const hours = Math.floor(i / 4);
+                  const minutes = (i % 4) * 15;
+                  const time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                  return (
+                    <option key={time} value={time}>
+                      {time}
+                    </option>
+                  );
+                })}
+              </select>
+            </>
+          )
         )}
 
         <button
