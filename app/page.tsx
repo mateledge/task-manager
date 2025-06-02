@@ -42,16 +42,18 @@ export default function Home() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  const handleAddTask = async () => {
-    if (!title || !deadline) return;
-    const newTask: Task = {
-      id: Date.now(), title, category, deadline,
-      startTime: category === '業務' || isAllDay ? undefined : startTime,
-      duration: category === '業務' || isAllDay ? undefined : duration,
-      isAllDay: category === '業務' ? undefined : isAllDay,
-      days: category === '業務' ? undefined : (isAllDay ? days : undefined),
-      completed: false,
-    };
+const handleAddTask = async () => {
+  if (!title || !deadline) {
+    return;
+  }
+  const newTask: Task = {
+    id: Date.now(), title, category, deadline,
+    startTime: category === '業務' || isAllDay ? undefined : startTime,
+    duration: category === '業務' || isAllDay ? undefined : duration,
+    isAllDay: category === '業務' ? undefined : isAllDay,
+    days: category === '業務' ? undefined : (isAllDay ? days : undefined),
+    completed: false,
+  };
     setTasks([...tasks, newTask]);
     if (session && category !== '業務') {
       const resolvedStart = isAllDay ? deadline : `${deadline}T${startTime || '00:00'}`;
