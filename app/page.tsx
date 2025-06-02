@@ -1,5 +1,3 @@
-// page.tsx
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -129,7 +127,7 @@ export default function Home() {
   };
 
   const visibleTasks = tasks
-    .filter((task) => task.category === '業務') // 表示も業務のみに限定
+    .filter((task) => task.category === '業務')
     .sort((a, b) => {
       if (a.completed !== b.completed) return a.completed ? 1 : -1;
       if (a.deadline < new Date().toISOString().slice(0, 10)) return -1;
@@ -284,6 +282,16 @@ export default function Home() {
         >
           {category === '業務' ? '登録' : 'Googleカレンダー登録'}
         </button>
+
+        {/* Googleカレンダー（月表示）ボタン */}
+        <a
+          href="https://calendar.google.com/calendar/u/0/r/month"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 block text-center bg-green-600 text-white py-2 rounded"
+        >
+          Googleカレンダー（月表示）を開く
+        </a>
       </div>
 
       <hr />
