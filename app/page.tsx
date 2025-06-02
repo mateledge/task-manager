@@ -122,22 +122,9 @@ export default function Home() {
           Googleでログイン
         </button>
         
-        <div className="pt-10 text-center">
-    <button
-      onClick={() => signOut()}
-      className="bg-red-600 px-4 py-2 rounded text-white text-sm"
-    >
-      ログアウト
-    </button>
-  </div>
-  <div className="pt-10 text-center">
-    <button
-      onClick={() => signOut()}
-      className="bg-red-600 px-4 py-2 rounded text-white text-sm"
-    >
-      ログアウト
-    </button>
-  </div>
+        
+  
+  
   <div className="pt-10 text-center">
     <button
       onClick={() => signOut()}
@@ -147,7 +134,7 @@ export default function Home() {
     </button>
   </div>
 </main>
-    );
+  );
   }
 
   return (
@@ -309,4 +296,3 @@ export default function Home() {
     </main>
   );
 }
-
