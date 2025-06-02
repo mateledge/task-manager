@@ -115,109 +115,113 @@ export default function Home() {
       </div>
 
       <div className="space-y-2">
-  <input
-    className="w-full p-2 border rounded text-black"
-    type="text"
-    placeholder="タスク名"
-    value={title}
-    onChange={(e) => setTitle(e.target.value)}
-  />
-
-  <div className="flex gap-4 flex-wrap">
-    {['業務', '外出', '来客', 'プライベート', 'WEB', '重要'].map((c) => (
-      <label key={c}>
         <input
-          type="radio"
-          value={c}
-          checked={category === c}
-          onChange={() => setCategory(c as Task['category'])}
+          className="w-full p-2 border rounded text-black"
+          type="text"
+          placeholder="タスク名"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
-        <span className="ml-1 text-white">{c}</span>
-      </label>
-    ))}
-  </div>
 
-  <label className="text-white">予定日</label>
-  <input
-    className="w-full p-2 border rounded text-black"
-    type="date"
-    value={deadline}
-    onChange={(e) => setDeadline(e.target.value)}
-  />
+        <div className="flex gap-4 flex-wrap">
+          {['業務', '外出', '来客', 'プライベート', 'WEB', '重要'].map((c) => (
+            <label key={c}>
+              <input
+                type="radio"
+                value={c}
+                checked={category === c}
+                onChange={() => setCategory(c as Task['category'])}
+              />
+              <span className="ml-1 text-white">{c}</span>
+            </label>
+          ))}
+        </div>
 
-  <label className="flex items-center gap-2 text-white">
-    <input
-      type="checkbox"
-      checked={isAllDay}
-      onChange={() => setIsAllDay(!isAllDay)}
-    />
-    終日
-  </label>
+        <label className="text-white">予定日</label>
+        <input
+          className="w-full p-2 border rounded text-black"
+          type="date"
+          value={deadline}
+          onChange={(e) => setDeadline(e.target.value)}
+        />
 
-  {isAllDay ? (
-    <>
-      <label className="text-white">何日間</label>
-      <select
-        className="w-full p-2 border rounded text-black"
-        value={days}
-        onChange={(e) => setDays(Number(e.target.value))}
-      >
-        {[...Array(30)].map((_, i) => (
-          <option key={i + 1} value={i + 1}>
-            {i + 1} 日間
-          </option>
-        ))}
-      </select>
-    </>
-  ) : (
-    <>
-      <label className="text-white">開始時間</label>
-      <select
-        className="w-full p-2 border rounded text-black"
-        value={startTime}
-        onChange={(e) => setStartTime(e.target.value)}
-      >
-        <option value="">開始時間を選択</option>
-        {Array.from({ length: 24 * 4 }, (_, i) => {
-          const hours = Math.floor(i / 4);
-          const minutes = (i % 4) * 15;
-          const time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-          return (
-            <option key={time} value={time}>
-              {time}
-            </option>
-          );
-        })}
-      </select>
+        {category !== '業務' && (
+          <>
+            <label className="flex items-center gap-2 text-white">
+              <input
+                type="checkbox"
+                checked={isAllDay}
+                onChange={() => setIsAllDay(!isAllDay)}
+              />
+              終日
+            </label>
 
-      <label className="text-white">所要時間</label>
-      <select
-        className="w-full p-2 border rounded text-black"
-        value={duration}
-        onChange={(e) => setDuration(e.target.value)}
-      >
-        <option value="">所要時間を選択</option>
-        {Array.from({ length: 24 * 4 }, (_, i) => {
-          const hours = Math.floor(i / 4);
-          const minutes = (i % 4) * 15;
-          const time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-          return (
-            <option key={time} value={time}>
-              {time}
-            </option>
-          );
-        })}
-      </select>
-    </>
-  )}
+            {isAllDay ? (
+              <>
+                <label className="text-white">何日間</label>
+                <select
+                  className="w-full p-2 border rounded text-black"
+                  value={days}
+                  onChange={(e) => setDays(Number(e.target.value))}
+                >
+                  {[...Array(30)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} 日間
+                    </option>
+                  ))}
+                </select>
+              </>
+            ) : (
+              <>
+                <label className="text-white">開始時間</label>
+                <select
+                  className="w-full p-2 border rounded text-black"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                >
+                  <option value="">開始時間を選択</option>
+                  {Array.from({ length: 24 * 4 }, (_, i) => {
+                    const hours = Math.floor(i / 4);
+                    const minutes = (i % 4) * 15;
+                    const time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                    return (
+                      <option key={time} value={time}>
+                        {time}
+                      </option>
+                    );
+                  })}
+                </select>
 
-  <button
-    className="w-full bg-blue-500 text-white py-2 rounded"
-    onClick={handleAddTask}
-  >
-    登録
-  </button>
-</div>
+                <label className="text-white">所要時間</label>
+                <select
+                  className="w-full p-2 border rounded text-black"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                >
+                  <option value="">所要時間を選択</option>
+                  {Array.from({ length: 24 * 4 }, (_, i) => {
+                    const hours = Math.floor(i / 4);
+                    const minutes = (i % 4) * 15;
+                    const time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                    return (
+                      <option key={time} value={time}>
+                        {time}
+                      </option>
+                    );
+                  })}
+                </select>
+              </>
+            )}
+          </>
+        )}
+
+        <button
+          className="w-full bg-blue-500 text-white py-2 rounded"
+          onClick={handleAddTask}
+        >
+          登録
+        </button>
+      </div>
 
       <hr />
       <h2 className="text-xl font-bold text-white">登録済みタスク</h2>
@@ -257,4 +261,3 @@ export default function Home() {
     </main>
   );
 }
-
