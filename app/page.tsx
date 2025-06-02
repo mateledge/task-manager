@@ -207,21 +207,23 @@ export default function Home() {
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
           />
-          <label className="flex items-center text-sm gap-1">
-  <input
-    type="checkbox"
-    className="w-5 h-5"
-    checked={isAllDay}
-    onChange={() => setIsAllDay(!isAllDay)}
-  />
-  終日
+          <div className="flex items-center text-sm gap-3">
+  <label className="flex items-center gap-1">
+    <input
+      type="checkbox"
+      className="w-5 h-5"
+      checked={isAllDay}
+      onChange={() => setIsAllDay(!isAllDay)}
+    />
+    終日
+  </label>
   <button
     onClick={handleRestoreBackup}
-    className="ml-2 bg-yellow-500 px-2 py-1 rounded text-sm text-black"
+    className="bg-yellow-500 px-2 py-1 rounded text-sm text-black"
   >
     データ復元
   </button>
-</label>
+</div>
         </div>
 
         {category !== '業務' && (
@@ -321,4 +323,5 @@ export default function Home() {
   );  
 }
 ```
+
 
