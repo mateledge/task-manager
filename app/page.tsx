@@ -143,12 +143,7 @@ export default function Home() {
       
 
       <div className="space-y-2">
-        <input
-          className="w-full p-2 border rounded text-black"
-          type="text"
-          placeholder="タスク名"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+        <input$1onChange={(e) => setTitle(e.target.value)}
 
         <div className="space-y-2">
   <label className="text-white block">カテゴリ</label>
@@ -177,7 +172,6 @@ export default function Home() {
     className="p-2 border rounded text-black"
     value={deadline}
     onChange={(e) => setDeadline(e.target.value)}
-  />
   <label className="flex items-center text-white text-sm gap-1">
     <input
       type="checkbox"
