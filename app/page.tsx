@@ -159,7 +159,6 @@ export default function Home() {
       </main>
     );
   }
-
   return (
     <main className="max-w-xl mx-auto p-4 space-y-6 text-white">
       <Toaster position="top-right" />
@@ -252,9 +251,10 @@ export default function Home() {
                 onChange={(e) => setStartTime(e.target.value)}
               >
                 <option value="">選択</option>
-                {Array.from({ length: 96 }, (_, i) => {
-                  const h = String(Math.floor(i / 4)).padStart(2, '0');
-                  const m = String((i % 4) * 15).padStart(2, '0');
+                {Array.from({ length: ((23 - 6) * 4) + 1 }, (_, i) => {
+                  const totalMinutes = (6 * 60) + (i * 15);
+                  const h = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+                  const m = String(totalMinutes % 60).padStart(2, '0');
                   return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>;
                 })}
               </select>
@@ -266,11 +266,11 @@ export default function Home() {
                 onChange={(e) => setDuration(e.target.value)}
               >
                 <option value="">選択</option>
-                {Array.from({ length: 96 }, (_, i) => {
-                  const h = String(Math.floor(i / 4)).padStart(2, '0');
-                  const m = String((i % 4) * 15).padStart(2, '0');
-                  return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>;
-                })}
+                {[...Array(8)].map((_, i) => (
+                  <option key={i + 1} value={`${i + 1}:00`}>
+                    {`${i + 1}時間`}
+                  </option>
+                ))}
               </select>
             </>
           )
@@ -283,19 +283,18 @@ export default function Home() {
           {category === '業務' ? '登録' : 'Googleカレンダー登録'}
         </button>
 
-        {/* Googleカレンダー（月表示）ボタン */}
         <a
           href="https://calendar.google.com/calendar/u/0/r/month"
           target="_blank"
           rel="noopener noreferrer"
           className="mt-2 block text-center bg-green-600 text-white py-2 rounded"
         >
-          Googleカレンダー（月表示）を開く
+          Googleカレンダーを開く
         </a>
       </div>
 
       <hr />
-      <h2 className="text-xl font-bold">登録済みタスク</h2>
+      <h2 className="text-xl font-bold">管理タスク</h2>
       {visibleTasks.map((task) => (
         <div
           key={task.id}
