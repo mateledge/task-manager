@@ -276,11 +276,11 @@ export default function Home() {
         )}
 
         <button
-          className="w-full bg-blue-500 text-white py-2 rounded"
-          onClick={handleAddTask}
-        >
-          登録
-        </button>
+  className="w-full bg-blue-500 text-white py-2 rounded"
+  onClick={handleAddTask}
+>
+  {category === '業務' ? '登録' : 'Googleカレンダー登録'}
+</button>
       </div>
 
       <hr />
