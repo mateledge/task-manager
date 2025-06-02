@@ -133,11 +133,11 @@ export default function Home() {
           MATELEDGE Task Manager
         </h1>
         <button
-          onClick={() => signOut()}
-          className="bg-red-600 px-3 py-1 rounded text-white"
-        >
-          ログアウト
-        </button>
+  onClick={() => signOut()}
+  className="bg-red-600 px-4 py-2 rounded text-white whitespace-nowrap"
+>
+  ログアウト
+</button>
       </div>
 
       <div className="space-y-2">
