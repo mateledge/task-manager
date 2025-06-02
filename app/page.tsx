@@ -208,14 +208,20 @@ export default function Home() {
             onChange={(e) => setDeadline(e.target.value)}
           />
           <label className="flex items-center text-sm gap-1">
-            <input
-              type="checkbox"
-              className="w-5 h-5"
-              checked={isAllDay}
-              onChange={() => setIsAllDay(!isAllDay)}
-            />
-            終日
-          </label>
+  <input
+    type="checkbox"
+    className="w-5 h-5"
+    checked={isAllDay}
+    onChange={() => setIsAllDay(!isAllDay)}
+  />
+  終日
+  <button
+    onClick={handleRestoreBackup}
+    className="ml-2 bg-yellow-500 px-2 py-1 rounded text-sm text-black"
+  >
+    データ復元
+  </button>
+</label>
         </div>
 
         {category !== '業務' && (
@@ -276,15 +282,8 @@ export default function Home() {
       </div>
 
       <hr />
-      <div className="flex gap-4">
-  <button
-    onClick={handleRestoreBackup}
-    className="bg-yellow-500 px-4 py-2 rounded text-sm text-black"
-  >
-    データ復元
-  </button>
-</div>
-<h2 className="text-xl font-bold">登録済みタスク</h2>
+      <h2 className="text-xl font-bold">登録済みタスク</h2>
+
       {visibleTasks.map((task) => (
         <div
           key={task.id}
