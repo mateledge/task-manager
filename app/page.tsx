@@ -174,14 +174,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex gap-4">
-        <button
-          onClick={handleRestoreBackup}
-          className="bg-yellow-500 px-4 py-2 rounded text-sm text-black"
-        >
-          データ復元
-        </button>
-      </div>
+      
 
       <div className="space-y-2">
         <input
@@ -283,7 +276,15 @@ export default function Home() {
       </div>
 
       <hr />
-      <h2 className="text-xl font-bold">登録済みタスク</h2>
+      <div className="flex justify-between items-center">
+  <h2 className="text-xl font-bold">登録済みタスク</h2>
+  <button
+    onClick={handleRestoreBackup}
+    className="bg-yellow-500 px-4 py-2 rounded text-sm text-black"
+  >
+    データ復元
+  </button>
+</div>
       {visibleTasks.map((task) => (
         <div
           key={task.id}
@@ -320,3 +321,4 @@ export default function Home() {
     </main>
   );  
 }
+```
