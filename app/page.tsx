@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -205,7 +204,7 @@ export default function Home() {
     <main className="max-w-7xl mx-auto p-4 text-white space-y-4">
       <Toaster position="top-right" />
 
-      {/* ロゴ + ログアウト */}
+      {/* タイトルとログアウト */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="MATELEDGE Logo" className="w-12" />
@@ -219,29 +218,29 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Googleカレンダー */}
-      <div>
+      {/* Googleカレンダーを開く */}
+      <div className="flex justify-end">
         <a
           href="https://calendar.google.com/calendar/u/0/r/month"
           target="_blank"
           rel="noopener noreferrer"
-          className="block text-center bg-green-600 text-white py-2 rounded"
+          className="bg-green-600 text-white px-6 py-2 rounded text-sm ml-auto"
         >
           Googleカレンダーを開く
         </a>
       </div>
 
-      {/* ＋とデータ復元 */}
+      {/* ＋ボタンとデータ復元 */}
       <div className="flex justify-end gap-2">
         <button
           onClick={() => setShowForm(!showForm)}
-          className="bg-blue-500 px-4 py-2 rounded text-white"
+          className="bg-blue-500 px-4 py-2 rounded text-white text-sm"
         >
           ＋
         </button>
         <button
           onClick={handleRestoreBackup}
-          className="bg-yellow-500 px-4 py-2 rounded text-black"
+          className="bg-yellow-500 px-4 py-2 rounded text-black text-sm"
         >
           データ復元
         </button>
@@ -364,7 +363,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* 一覧 */}
+      {/* 一覧（メモ＋タスク） */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
         <div>
           <h2 className="text-xl font-bold">管理タスク</h2>
@@ -391,8 +390,8 @@ export default function Home() {
                       setTitle(task.title);
                       setDeadline(task.deadline);
                       setCategory('業務');
+                      setShowForm(true);
                       setTasks((prev) => prev.filter((t) => t.id !== task.id));
-                      setShowForm(true); 
                       toast.success('タスクを修正モードで開きました');
                     }}
                   >
@@ -433,4 +432,3 @@ export default function Home() {
     </main>
   );
 }
-
