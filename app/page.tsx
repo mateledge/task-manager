@@ -70,6 +70,8 @@ export default function Home() {
 
     if (!deadline) return;
 
+const isSpecialCategory = ['業務', 'メモ'].includes(category);
+
 const newTask: Task = {
   id: Date.now(),
   title,
@@ -77,8 +79,8 @@ const newTask: Task = {
   deadline,
   startTime: category === '業務' || isAllDay ? undefined : startTime,
   duration: category === '業務' || isAllDay ? undefined : duration,
-  isAllDay: category === '業務' || category === 'メモ' ? undefined : isAllDay,
-  days: category === '業務' || category === 'メモ' ? undefined : isAllDay ? days : undefined,
+  isAllDay: isSpecialCategory ? undefined : isAllDay,
+  days: isSpecialCategory ? undefined : isAllDay ? days : undefined,
   completed: false,
 };
 
