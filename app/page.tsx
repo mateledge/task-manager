@@ -8,7 +8,7 @@ import toast, { Toaster } from 'react-hot-toast';
 type Task = {
   id: number;
   title: string;
-  category: '業務' | '外出' | '来客' | 'プライベート' | 'WEB' | '重要' | 'メモ';
+  category: '業務' | '外出' | '来客' | 'PB' | 'WEB' | '重要' | 'メモ';
   deadline: string;
   startTime?: string;
   duration?: string;
@@ -65,7 +65,9 @@ export default function Home() {
         id: Date.now(),
         title,
       };
-      setMemos([...memos, newMemo]);
+      const updatedMemos = [...memos, newMemo];
+      setMemos(updatedMemos);
+      localStorage.setItem('backupMemos', JSON.stringify(updatedMemos));
       setTitle('');
       return;
     }
@@ -88,10 +90,7 @@ export default function Home() {
 
     const updatedTasks = [...tasks, newTask];
     setTasks(updatedTasks);
-
-    if (category === '業務') {
-      localStorage.setItem('backupTasks', JSON.stringify(updatedTasks));
-    }
+    localStorage.setItem('backupTasks', JSON.stringify(updatedTasks));
 
     if (session && category !== '業務') {
       const resolvedStart = isAllDay
@@ -139,22 +138,28 @@ export default function Home() {
   };
 
   const handleRestoreBackup = () => {
-    const backup = localStorage.getItem('backupTasks');
-    if (!backup) {
-      toast.error('バックアップがありません');
-      return;
-    }
-    try {
-      const parsed = JSON.parse(backup);
-      if (Array.isArray(parsed)) {
-        setTasks(parsed);
-        toast.success('データ復元しました');
-      } else {
-        toast.error('不正なバックアップデータです');
+    const taskBackup = localStorage.getItem('backupTasks');
+    const memoBackup = localStorage.getItem('backupMemos');
+
+    if (taskBackup) {
+      try {
+        const parsed = JSON.parse(taskBackup);
+        if (Array.isArray(parsed)) setTasks(parsed);
+      } catch {
+        toast.error('タスク復元に失敗しました');
       }
-    } catch {
-      toast.error('バックアップの読み込みに失敗しました');
     }
+
+    if (memoBackup) {
+      try {
+        const parsed = JSON.parse(memoBackup);
+        if (Array.isArray(parsed)) setMemos(parsed);
+      } catch {
+        toast.error('メモ復元に失敗しました');
+      }
+    }
+
+    toast.success('データ復元しました');
   };
 
   const handleToggleComplete = (id: number) => {
@@ -202,7 +207,7 @@ export default function Home() {
 
       {/* 1段目: タイトル & ログアウト */}
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
+        <div class="flex items-center gap-3">
           <img src="/logo.png" alt="MATELEDGE Logo" className="w-12" />
           <h1 className="text-2xl font-bold">Task Manager</h1>
         </div>
@@ -242,9 +247,9 @@ export default function Home() {
         </button>
       </div>
 
-      {/* 4段目: 入力フォーム（＋を押したときだけ表示） */}
+      {/* 入力フォーム（＋押下時） */}
       {showForm && (
-        <div className="space-y-2 border border-gray-400 p-4 rounded">
+        <div className="space-y-3 border border-gray-400 p-4 rounded">
           <input
             className="w-full p-2 border rounded text-black"
             type="text"
@@ -253,30 +258,34 @@ export default function Home() {
             onChange={(e) => setTitle(e.target.value)}
           />
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <select
               className="w-1/3 p-2 border rounded text-black"
               value={category}
               onChange={(e) => setCategory(e.target.value as Task['category'])}
             >
-              <option value="業務">業務（アプリ表示）</option>
+              <option value="業務">業務</option>
               <option value="外出">外出</option>
               <option value="来客">来客</option>
-              <option value="プライベート">プライベート</option>
+              <option value="PB">PB</option>
               <option value="WEB">WEB</option>
               <option value="重要">重要</option>
-              <option value="メモ">メモ（別一覧）</option>
+              <option value="メモ">メモ</option>
             </select>
 
             {category !== 'メモ' && (
               <>
-                <input
-                  type="date"
-                  className="p-2 border rounded text-black w-1/3"
-                  value={deadline}
-                  onChange={(e) => setDeadline(e.target.value)}
-                />
-                <label className="flex items-center text-sm gap-1 w-1/3">
+                <label className="flex items-center gap-1 w-1/3">
+                  <span className="whitespace-nowrap">Day</span>
+                  <input
+                    type="date"
+                    className="flex-1 p-2 border rounded text-black"
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
+                  />
+                </label>
+
+                <label className="flex items-center gap-1 w-1/3 text-sm">
                   <input
                     type="checkbox"
                     className="w-5 h-5"
@@ -335,9 +344,9 @@ export default function Home() {
         </div>
       )}
 
-      {/* 一覧表示 */}
+      {/* 一覧表示（横並び） */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
-        {/* 管理タスク一覧 */}
+        {/* 管理タスク */}
         <div>
           <h2 className="text-xl font-bold">管理タスク</h2>
           {visibleTasks.map((task) => (
@@ -362,6 +371,7 @@ export default function Home() {
                     onClick={() => {
                       setTitle(task.title);
                       setDeadline(task.deadline);
+                      setCategory('業務'); // 修正時は業務に固定
                       setTasks((prev) => prev.filter((t) => t.id !== task.id));
                       toast.success('タスクを修正モードで開きました');
                     }}
