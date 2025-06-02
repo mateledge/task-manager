@@ -121,24 +121,23 @@ export default function Home() {
         >
           Googleでログイン
         </button>
-      </main>
+        <div className="pt-10 text-center">
+        <button
+          onClick={() => signOut()}
+          className="bg-red-600 px-4 py-2 rounded text-white text-sm"
+        >
+          ログアウト
+        </button>
+      </div>
+    </main>
     );
   }
 
   return (
     <main className="max-w-xl mx-auto p-4 space-y-6">
+      <img src="/logo.png" alt="MATELEDGE Logo" className="w-32 mx-auto" />
       <Toaster position="top-right" />
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">
-          MATELEDGE Task Manager
-        </h1>
-        <button
-  onClick={() => signOut()}
-  className="bg-red-600 px-4 py-2 rounded text-white whitespace-nowrap"
->
-  ログアウト
-</button>
-      </div>
+      
 
       <div className="space-y-2">
         <input
