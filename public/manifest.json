@@ -1,6 +1,6 @@
 {
-  "name": "タスク管理",
-  "short_name": "タス管",
+  "name": "Task",
+  "short_name": "Task",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
