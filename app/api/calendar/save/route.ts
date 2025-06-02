@@ -7,7 +7,7 @@ import { getToken } from 'next-auth/jwt';
 const CATEGORY_COLOR_MAP: Record<string, string> = {
   '外出': '11',   // トマト
   '来客': '5',    // バナナ
-  'PB': '10',     // セージ
+  'PB': '2',     // セージ
   'WEB': '3',     // ブドウ
   '重要': '9',    // ブルーベリー
   'NKE': '8',     // グラファイト
