@@ -75,16 +75,23 @@ export default function Home() {
 
     // Googleカレンダー登録（業務以外）
     if (session && category !== '業務') {
+      const resolvedStart = isAllDay
+        ? deadline
+        : `${deadline}T${startTime || '00:00'}`;
+
       const res = await fetch('/api/calendar/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           task: title,
-         startDate: isAllDay ? deadline : `${deadline}T${startTime || '00:00'}`,
-          duration: (Number(duration?.split(':')[0]) || 1) + (Number(duration?.split(':')[1]) || 0) / 60,
+          startDate: resolvedStart,
+          duration,
           category,
+          isAllDay,
+          days,
         }),
       });
+
       const data = await res.json();
       if (!res.ok) alert(data.error || 'Googleカレンダー登録に失敗しました');
     }
@@ -112,24 +119,23 @@ export default function Home() {
       return a.deadline.localeCompare(b.deadline);
     });
 
-if (!session) {
-  return (
-    <main className="text-white p-8">
-      <p>ログインしていません</p>
-      <button
-        onClick={() => signIn('google', {
-          prompt: 'consent',
-          access_type: 'offline',
-          response_type: 'code'
-        })}
-        className="bg-blue-600 px-4 py-2 mt-2 rounded"
-      >
-        Googleでログイン
-      </button>
-    </main>
-  );
-}
-
+  if (!session) {
+    return (
+      <main className="text-white p-8">
+        <p>ログインしていません</p>
+        <button
+          onClick={() => signIn('google', {
+            prompt: 'consent',
+            access_type: 'offline',
+            response_type: 'code'
+          })}
+          className="bg-blue-600 px-4 py-2 mt-2 rounded"
+        >
+          Googleでログイン
+        </button>
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-xl mx-auto p-4 space-y-6">
