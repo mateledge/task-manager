@@ -42,30 +42,6 @@ export default function Home() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-const startVoiceInput = () => {
-  const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    toast.error('このブラウザは音声入力に対応していません。');
-    return;
-  }
-
-  const recognition = new SpeechRecognition();
-  recognition.lang = 'ja-JP';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.start();
-
-  recognition.onresult = (event: any) => {
-    const transcript = event.results[0][0].transcript;
-    setTitle(transcript);
-  };
-
-  recognition.onerror = () => {
-    toast.error('音声認識中にエラーが発生しました。');
-  };
-};
-
   const handleAddTask = async () => {
     if (!title || !deadline) return;
     const newTask: Task = {
@@ -124,7 +100,7 @@ const startVoiceInput = () => {
 
       <div className="space-y-2">
         <input className="w-full p-2 border rounded text-black" type="text" placeholder="タスク名" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <button className="text-sm text-blue-600 underline" onClick={startVoiceInput}>🎤 マイクで入力</button>
+
         <div className="flex gap-4 flex-wrap">
           {['業務', '外出', '来客', 'プライベート', 'WEB', '重要'].map(c => (
             <label key={c}><input type="radio" value={c} checked={category === c} onChange={() => setCategory(c as Task['category'])} /><span className="ml-1 text-white">{c}</span></label>
