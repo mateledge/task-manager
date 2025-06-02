@@ -1,12 +1,9 @@
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-});
-
-module.exports = withPWA({
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true, // ✅ ←これを追加
-  },
-});
+  experimental: {
+    appDir: true
+  }
+};
+
+module.exports = nextConfig;
