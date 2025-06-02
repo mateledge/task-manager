@@ -3,12 +3,14 @@ import { OAuth2Client } from 'google-auth-library';
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-const CATEGORY_COLOR_MAP = {
-  '外出': '11',
-  '来客': '5',
-  'プライベート': '10',
-  'WEB': '3',
-  '重要': '9',
+// ✅ カテゴリごとのGoogleカレンダー色設定
+const CATEGORY_COLOR_MAP: Record<string, string> = {
+  '外出': '11',   // トマト
+  '来客': '5',    // バナナ
+  'PB': '10',     // セージ
+  'WEB': '3',     // ブドウ
+  '重要': '9',    // ブルーベリー
+  'NKE': '8',     // グラファイト
 };
 
 export async function POST(req: NextRequest) {
@@ -23,7 +25,7 @@ export async function POST(req: NextRequest) {
     task: string;
     startDate: string;
     duration?: string;
-    category: keyof typeof CATEGORY_COLOR_MAP;
+    category: string;
     isAllDay?: boolean;
     days?: number;
   };
@@ -73,16 +75,19 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// 🔧 文字列から時間をミリ秒に変換
 function parseDuration(str?: string): number {
   if (!str || typeof str !== 'string' || !str.includes(':')) return 60 * 60 * 1000;
   const [h, m] = str.split(':').map(Number);
   return (h * 60 + m) * 60 * 1000;
 }
 
+// 🔧 日付を YYYY-MM-DD 形式に変換
 function formatDate(date: Date): string {
   return date.toISOString().split('T')[0];
 }
 
+// 🔧 ローカルタイム形式でフォーマット
 function formatLocalDateTime(date: Date): string {
   const pad = (n: number) => n.toString().padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
