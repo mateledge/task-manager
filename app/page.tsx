@@ -303,22 +303,36 @@ export default function Home() {
             <div className="text-sm text-gray-700">終日（{task.days}日間）</div>
           )}
           <div className="mt-4 flex justify-between text-sm">
-            <button
-              className="text-blue-600 underline"
-              onClick={() => handleToggleComplete(task.id)}
-            >
-              {task.completed ? '戻す' : '完了'}
-            </button>
-            <button
-              className="text-red-600 underline"
-              onClick={() => handleDeleteTask(task.id)}
-            >
-              削除
-            </button>
-          </div>
+  <div className="flex gap-4">
+    <button
+      className="text-blue-600 underline"
+      onClick={() => handleToggleComplete(task.id)}
+    >
+      {task.completed ? '戻す' : '完了'}
+    </button>
+    <button
+      className="text-green-600 underline"
+      onClick={() => {
+        setTitle(task.title);
+        setDeadline(task.deadline);
+        setTasks((prev) => prev.filter((t) => t.id !== task.id));
+        toast.success('タスクを修正モードで開きました');
+      }}
+    >
+      修正
+    </button>
+  </div>
+  <button
+    className="text-red-600 underline"
+    onClick={() => handleDeleteTask(task.id)}
+  >
+    削除
+  </button>
+</div>
         </div>
       ))}
     </main>
   );
 }
+
 
