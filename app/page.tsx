@@ -125,6 +125,12 @@ export default function Home() {
         
   
   
+  
+  
+  
+  
+  
+  
   <div className="pt-10 text-center">
     <button
       onClick={() => signOut()}
@@ -296,4 +302,4 @@ export default function Home() {
     </main>
   );
 }
-// dummy update 
+
