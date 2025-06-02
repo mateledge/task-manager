@@ -4,8 +4,17 @@ import { useState, useEffect } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import toast, { Toaster } from 'react-hot-toast';
 
-// 型定義
-...
+type Task = {
+  id: number;
+  title: string;
+  category: '業務' | '外出' | '来客' | 'プライベート' | 'WEB' | '重要';
+  deadline: string;
+  startTime?: string;
+  duration?: string;
+  isAllDay?: boolean;
+  days?: number;
+  completed: boolean;
+};
 
 export default function Home() {
   const { data: session } = useSession();
