@@ -52,6 +52,32 @@ export default function Home() {
       completed: false,
     };
     setTasks((prev) => [...prev, newTask]);
+
+    if (session && category !== '業務') {
+      const resolvedStart = isAllDay
+        ? deadline
+        : `${deadline}T${startTime || '00:00'}`;
+
+      const res = await fetch('/api/calendar/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          task: title,
+          startDate: resolvedStart,
+          duration,
+          category,
+          isAllDay,
+          days,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || 'Googleカレンダー登録に失敗しました');
+      } else {
+        toast.success('登録完了しました');
+      }
+    }
     setTitle('');
     setDeadline('');
     setStartTime('');
