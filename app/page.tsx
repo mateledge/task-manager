@@ -129,7 +129,15 @@ export default function Home() {
             ログアウト
           </button>
         </div>
-      </main>
+        <div className="pt-10 text-center">
+    <button
+      onClick={() => signOut()}
+      className="bg-red-600 px-4 py-2 rounded text-white text-sm"
+    >
+      ログアウト
+    </button>
+  </div>
+</main>
     );
   }
 
