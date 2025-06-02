@@ -70,17 +70,18 @@ export default function Home() {
 
     if (!deadline) return;
 
-    const newTask: Task = {
-      id: Date.now(),
-      title,
-      category,
-      deadline,
-      startTime: category === '業務' || isAllDay ? undefined : startTime,
-      duration: category === '業務' || isAllDay ? undefined : duration,
-      isAllDay: category === '業務' || category === 'メモ' ? undefined : isAllDay,
-      days: category === '業務' || category === 'メモ' ? undefined : isAllDay ? days : undefined,
-      completed: false,
-    };
+const newTask: Task = {
+  id: Date.now(),
+  title,
+  category,
+  deadline,
+  startTime: category === '業務' || isAllDay ? undefined : startTime,
+  duration: category === '業務' || isAllDay ? undefined : duration,
+  isAllDay: category === '業務' || category === 'メモ' ? undefined : isAllDay,
+  days: category === '業務' || category === 'メモ' ? undefined : isAllDay ? days : undefined,
+  completed: false,
+};
+
 
     const updatedTasks = [...tasks, newTask];
     setTasks(updatedTasks);
