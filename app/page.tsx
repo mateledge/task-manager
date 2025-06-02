@@ -42,20 +42,29 @@ export default function Home() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  const startVoiceInput = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      toast.error('このブラウザは音声入力に対応していません。');
-      return;
-    }
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'ja-JP';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.start();
-    recognition.onresult = (event: any) => setTitle(event.results[0][0].transcript);
-    recognition.onerror = () => toast.error('音声認識中にエラーが発生しました。');
+const startVoiceInput = () => {
+  const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    toast.error('このブラウザは音声入力に対応していません。');
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'ja-JP';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.start();
+
+  recognition.onresult = (event: any) => {
+    const transcript = event.results[0][0].transcript;
+    setTitle(transcript);
   };
+
+  recognition.onerror = () => {
+    toast.error('音声認識中にエラーが発生しました。');
+  };
+};
 
   const handleAddTask = async () => {
     if (!title || !deadline) return;
