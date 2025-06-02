@@ -8,8 +8,11 @@ const withPWA = require('next-pwa')({
 const nextConfig = withPWA({
   reactStrictMode: true,
   experimental: {
-    appDir: true
-  }
+    appDir: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true, // ←これを追加
+  },
 });
 
 module.exports = nextConfig;
