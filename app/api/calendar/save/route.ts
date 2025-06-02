@@ -58,10 +58,10 @@ export async function POST(req: NextRequest) {
     colorId: CATEGORY_COLOR_MAP[category] || '1',
     start: isAllDay
       ? { date: formatDate(start) }
-      : { dateTime: start.toISOString(), timeZone: 'Asia/Tokyo' },
+      : { dateTime: formatLocalDateTime(start), timeZone: 'Asia/Tokyo' },
     end: isAllDay
       ? { date: formatDate(end) }
-      : { dateTime: end.toISOString(), timeZone: 'Asia/Tokyo' },
+      : { dateTime: formatLocalDateTime(end), timeZone: 'Asia/Tokyo' },
   };
 
   try {
@@ -81,4 +81,9 @@ function parseDuration(str?: string): number {
 
 function formatDate(date: Date): string {
   return date.toISOString().split('T')[0];
+}
+
+function formatLocalDateTime(date: Date): string {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
 }
