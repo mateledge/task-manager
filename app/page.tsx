@@ -7,7 +7,7 @@ import toast, { Toaster } from 'react-hot-toast';
 type Task = {
   id: number;
   title: string;
-  category: '業務' | '外出' | '来客' | 'プライベート' | 'WEB' | '重要';
+  category: '業務' | '外出' | '来客' | 'プライベート' | 'WEB' | '重要' | 'メモ';
   deadline: string;
   startTime?: string;
   duration?: string;
@@ -16,12 +16,25 @@ type Task = {
   completed: boolean;
 };
 
+type Memo = {
+  id: number;
+  title: string;
+};
+
 export default function Home() {
   const { data: session, status } = useSession();
 
   const [tasks, setTasks] = useState<Task[]>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('tasks');
+      return stored ? JSON.parse(stored) : [];
+    }
+    return [];
+  });
+
+  const [memos, setMemos] = useState<Memo[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('memos');
       return stored ? JSON.parse(stored) : [];
     }
     return [];
@@ -39,8 +52,23 @@ export default function Home() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
+  useEffect(() => {
+    localStorage.setItem('memos', JSON.stringify(memos));
+  }, [memos]);
   const handleAddTask = async () => {
-    if (!title || !deadline) return;
+    if (!title) return;
+
+    if (category === 'メモ') {
+      const newMemo: Memo = {
+        id: Date.now(),
+        title,
+      };
+      setMemos([...memos, newMemo]);
+      setTitle('');
+      return;
+    }
+
+    if (!deadline) return;
 
     const newTask: Task = {
       id: Date.now(),
@@ -49,14 +77,15 @@ export default function Home() {
       deadline,
       startTime: category === '業務' || isAllDay ? undefined : startTime,
       duration: category === '業務' || isAllDay ? undefined : duration,
-      isAllDay: category === '業務' ? undefined : isAllDay,
-      days: category === '業務' ? undefined : isAllDay ? days : undefined,
+      isAllDay: category === '業務' || category === 'メモ' ? undefined : isAllDay,
+      days: category === '業務' || category === 'メモ' ? undefined : isAllDay ? days : undefined,
       completed: false,
     };
 
+    const updatedTasks = [...tasks, newTask];
+    setTasks(updatedTasks);
+
     if (category === '業務') {
-      const updatedTasks = [...tasks, newTask];
-      setTasks(updatedTasks);
       localStorage.setItem('backupTasks', JSON.stringify(updatedTasks));
     }
 
@@ -94,6 +123,16 @@ export default function Home() {
     setDays(1);
   };
 
+  const handleDeleteTask = (id: number) => {
+    setTasks((prev) => prev.filter((task) => task.id !== id));
+    toast.success('完全削除しました');
+  };
+
+  const handleDeleteMemo = (id: number) => {
+    setMemos((prev) => prev.filter((memo) => memo.id !== id));
+    toast.success('完全削除しました');
+  };
+
   const handleToggleComplete = (id: number) => {
     setTasks((prev) =>
       prev.map((task) =>
@@ -101,39 +140,9 @@ export default function Home() {
       )
     );
   };
-
-  const handleDeleteTask = (id: number) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
-    toast.success('削除しました');
-  };
-
-  const handleRestoreBackup = () => {
-    const backup = localStorage.getItem('backupTasks');
-    if (!backup) {
-      toast.error('バックアップがありません');
-      return;
-    }
-    try {
-      const parsed = JSON.parse(backup);
-      if (Array.isArray(parsed)) {
-        setTasks(parsed);
-        toast.success('データ復元しました');
-      } else {
-        toast.error('不正なバックアップデータです');
-      }
-    } catch {
-      toast.error('バックアップの読み込みに失敗しました');
-    }
-  };
-
   const visibleTasks = tasks
     .filter((task) => task.category === '業務')
-    .sort((a, b) => {
-      if (a.completed !== b.completed) return a.completed ? 1 : -1;
-      if (a.deadline < new Date().toISOString().slice(0, 10)) return -1;
-      if (b.deadline < new Date().toISOString().slice(0, 10)) return 1;
-      return a.deadline.localeCompare(b.deadline);
-    });
+    .sort((a, b) => a.deadline.localeCompare(b.deadline));
 
   if (status === 'loading') {
     return <main className="text-white p-8">読み込み中...</main>;
@@ -159,8 +168,9 @@ export default function Home() {
       </main>
     );
   }
+
   return (
-    <main className="max-w-xl mx-auto p-4 space-y-6 text-white">
+    <main className="max-w-7xl mx-auto p-4 text-white space-y-6">
       <Toaster position="top-right" />
       <div className="flex items-center gap-3">
         <img src="/logo.png" alt="MATELEDGE Logo" className="w-12" />
@@ -175,7 +185,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* タスク登録フォーム */}
+      {/* 入力フォーム */}
       <div className="space-y-2">
         <input
           className="w-full p-2 border rounded text-black"
@@ -190,97 +200,78 @@ export default function Home() {
           value={category}
           onChange={(e) => setCategory(e.target.value as Task['category'])}
         >
-          <option value="業務">業務（アプリ表示のみ）</option>
+          <option value="業務">業務（アプリ表示）</option>
           <option disabled>──────────</option>
           <option value="外出">外出</option>
           <option value="来客">来客</option>
           <option value="プライベート">プライベート</option>
           <option value="WEB">WEB</option>
           <option value="重要">重要</option>
+          <option disabled>──────────</option>
+          <option value="メモ">メモ（別一覧）</option>
         </select>
 
-        <div className="flex items-center gap-3">
-          <label className="whitespace-nowrap">予定日</label>
-          <input
-            type="date"
-            className="p-2 border rounded text-black"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-          />
-          <div className="flex items-center text-sm gap-3">
-            <label className="flex items-center gap-1">
-              <input
-                type="checkbox"
-                className="w-5 h-5"
-                checked={isAllDay}
-                onChange={() => setIsAllDay(!isAllDay)}
-              />
-              終日
-            </label>
-            <button
-              onClick={handleRestoreBackup}
-              className="bg-yellow-500 px-2 py-1 rounded text-sm text-black"
-            >
-              データ復元
-            </button>
-          </div>
-        </div>
+        {category !== 'メモ' && (
+          <>
+            {category !== '業務' && (
+              <>
+                <label className="block">終日</label>
+                <input
+                  type="checkbox"
+                  checked={isAllDay}
+                  onChange={() => setIsAllDay(!isAllDay)}
+                />
+              </>
+            )}
 
-        {category !== '業務' && (
-          isAllDay ? (
-            <>
-              <label>何日間</label>
-              <select
-                className="w-full p-2 border rounded text-black"
-                value={days}
-                onChange={(e) => setDays(Number(e.target.value))}
-              >
-                {[...Array(30)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1} 日間
-                  </option>
-                ))}
-              </select>
-            </>
-          ) : (
-            <>
-              <label>開始時間</label>
-              <select
-                className="w-full p-2 border rounded text-black"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-              >
-                <option value="">選択</option>
-                {Array.from({ length: ((23 - 6) * 4) + 1 }, (_, i) => {
-                  const totalMinutes = (6 * 60) + (i * 15);
-                  const h = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
-                  const m = String(totalMinutes % 60).padStart(2, '0');
-                  return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>;
-                })}
-              </select>
+            <label className="block mt-2">予定日</label>
+            <input
+              type="date"
+              className="w-full p-2 border rounded text-black"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+            />
 
-              <label>所要時間</label>
-              <select
-                className="w-full p-2 border rounded text-black"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-              >
-                <option value="">選択</option>
-                {[...Array(8)].map((_, i) => (
-                  <option key={i + 1} value={`${i + 1}:00`}>
-                    {`${i + 1}時間`}
-                  </option>
-                ))}
-              </select>
-            </>
-          )
+            {category !== '業務' && !isAllDay && (
+              <>
+                <label>開始時間</label>
+                <select
+                  className="w-full p-2 border rounded text-black"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                >
+                  <option value="">選択</option>
+                  {Array.from({ length: ((23 - 6) * 4) + 1 }, (_, i) => {
+                    const totalMinutes = (6 * 60) + (i * 15);
+                    const h = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+                    const m = String(totalMinutes % 60).padStart(2, '0');
+                    return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>;
+                  })}
+                </select>
+
+                <label>所要時間</label>
+                <select
+                  className="w-full p-2 border rounded text-black"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                >
+                  <option value="">選択</option>
+                  {[...Array(8)].map((_, i) => (
+                    <option key={i + 1} value={`${i + 1}:00`}>
+                      {`${i + 1}時間`}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+          </>
         )}
 
         <button
           className="w-full bg-blue-500 text-white py-2 rounded"
           onClick={handleAddTask}
         >
-          {category === '業務' ? '登録' : 'Googleカレンダー登録'}
+          {category === '業務' || category === 'メモ' ? '登録' : 'Googleカレンダー登録'}
         </button>
 
         <a
@@ -293,54 +284,67 @@ export default function Home() {
         </a>
       </div>
 
-      <hr />
-      <h2 className="text-xl font-bold">管理タスク</h2>
-      {visibleTasks.map((task) => (
-        <div
-          key={task.id}
-          className={`p-3 rounded border mb-4 shadow-md transition hover:scale-[1.01] ${
-            task.completed ? 'bg-gray-400' : 'bg-white'
-          }`}
-        >
-          <div className="text-black font-bold">{task.title}</div>
-          <div className="text-sm text-gray-600">予定日: {task.deadline}</div>
-          {task.category !== '業務' && !task.isAllDay && (
-            <div className="text-sm text-gray-700">
-              {task.startTime} ～ {task.duration}
-            </div>
-          )}
-          {task.category !== '業務' && task.isAllDay && (
-            <div className="text-sm text-gray-700">終日（{task.days}日間）</div>
-          )}
-          <div className="mt-4 flex justify-between text-sm">
-            <div className="flex gap-4">
+      {/* 一覧表示（横並び） */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* メモ一覧 */}
+        <div>
+          <h2 className="text-xl font-bold">メモ一覧</h2>
+          {memos.map((memo) => (
+            <div key={memo.id} className="bg-white text-black p-3 rounded border mb-2 shadow">
+              <div className="font-bold">{memo.title}</div>
               <button
-                className="text-blue-600 underline"
-                onClick={() => handleToggleComplete(task.id)}
+                className="text-red-600 underline mt-2"
+                onClick={() => handleDeleteMemo(memo.id)}
               >
-                {task.completed ? '戻す' : '完了'}
-              </button>
-              <button
-                className="text-green-600 underline"
-                onClick={() => {
-                  setTitle(task.title);
-                  setDeadline(task.deadline);
-                  setTasks((prev) => prev.filter((t) => t.id !== task.id));
-                  toast.success('タスクを修正モードで開きました');
-                }}
-              >
-                修正
+                完全削除
               </button>
             </div>
-            <button
-              className="text-red-600 underline"
-              onClick={() => handleDeleteTask(task.id)}
-            >
-              削除
-            </button>
-          </div>
+          ))}
         </div>
-      ))}
+
+        {/* 管理タスク一覧 */}
+        <div>
+          <h2 className="text-xl font-bold">管理タスク</h2>
+          {visibleTasks.map((task) => (
+            <div
+              key={task.id}
+              className={`p-3 rounded border mb-4 shadow-md transition hover:scale-[1.01] ${
+                task.completed ? 'bg-gray-400' : 'bg-white'
+              }`}
+            >
+              <div className="text-black font-bold">{task.title}</div>
+              <div className="text-sm text-gray-600">予定日: {task.deadline}</div>
+              <div className="mt-4 flex justify-between text-sm">
+                <div className="flex gap-4">
+                  <button
+                    className="text-blue-600 underline"
+                    onClick={() => handleToggleComplete(task.id)}
+                  >
+                    {task.completed ? '戻す' : '完了'}
+                  </button>
+                  <button
+                    className="text-green-600 underline"
+                    onClick={() => {
+                      setTitle(task.title);
+                      setDeadline(task.deadline);
+                      setTasks((prev) => prev.filter((t) => t.id !== task.id));
+                      toast.success('タスクを修正モードで開きました');
+                    }}
+                  >
+                    修正
+                  </button>
+                </div>
+                <button
+                  className="text-red-600 underline"
+                  onClick={() => handleDeleteTask(task.id)}
+                >
+                  完全削除
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </main>
   );
 }
