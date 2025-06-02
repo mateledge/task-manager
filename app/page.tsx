@@ -392,6 +392,7 @@ export default function Home() {
                       setDeadline(task.deadline);
                       setCategory('業務');
                       setTasks((prev) => prev.filter((t) => t.id !== task.id));
+                      setShowForm(true); 
                       toast.success('タスクを修正モードで開きました');
                     }}
                   >
