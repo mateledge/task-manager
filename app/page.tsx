@@ -8,7 +8,7 @@ import toast, { Toaster } from 'react-hot-toast';
 type Task = {
   id: number;
   title: string;
-  category: '業務' | '外出' | '来客' | 'PB' | 'WEB' | '重要' | 'メモ';
+  category: '業務' | 'メモ' | '外出' | '来客' | 'WEB' | 'NKE' | '重要' | 'PB';
   deadline: string;
   startTime?: string;
   duration?: string;
@@ -205,7 +205,7 @@ export default function Home() {
     <main className="max-w-7xl mx-auto p-4 text-white space-y-4">
       <Toaster position="top-right" />
 
-      {/* 1段目: タイトル & ログアウト */}
+      {/* ロゴ + ログアウト */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="MATELEDGE Logo" className="w-12" />
@@ -219,7 +219,7 @@ export default function Home() {
         </button>
       </div>
 
-      {/* 2段目: Googleカレンダー */}
+      {/* Googleカレンダー */}
       <div>
         <a
           href="https://calendar.google.com/calendar/u/0/r/month"
@@ -231,7 +231,7 @@ export default function Home() {
         </a>
       </div>
 
-      {/* 3段目: ＋ボタンとデータ復元 */}
+      {/* ＋とデータ復元 */}
       <div className="flex justify-end gap-2">
         <button
           onClick={() => setShowForm(!showForm)}
@@ -247,7 +247,7 @@ export default function Home() {
         </button>
       </div>
 
-      {/* 入力フォーム（＋押下時） */}
+      {/* 入力フォーム */}
       {showForm && (
         <div className="space-y-3 border border-gray-400 p-4 rounded">
           <input
@@ -265,12 +265,13 @@ export default function Home() {
               onChange={(e) => setCategory(e.target.value as Task['category'])}
             >
               <option value="業務">業務</option>
+              <option value="メモ">メモ</option>
               <option value="外出">外出</option>
               <option value="来客">来客</option>
-              <option value="PB">PB</option>
               <option value="WEB">WEB</option>
+              <option value="NKE">NKE</option>
               <option value="重要">重要</option>
-              <option value="メモ">メモ</option>
+              <option value="PB">PB</option>
             </select>
 
             {category !== 'メモ' && (
@@ -285,18 +286,37 @@ export default function Home() {
                   />
                 </label>
 
-                <label className="flex items-center gap-1 w-1/3 text-sm">
-                  <input
-                    type="checkbox"
-                    className="w-5 h-5"
-                    checked={isAllDay}
-                    onChange={() => setIsAllDay(!isAllDay)}
-                  />
-                  終日
-                </label>
+                {category !== '業務' && (
+                  <label className="flex items-center gap-1 w-1/3 text-sm">
+                    <input
+                      type="checkbox"
+                      className="w-5 h-5"
+                      checked={isAllDay}
+                      onChange={() => setIsAllDay(!isAllDay)}
+                    />
+                    終日
+                  </label>
+                )}
               </>
             )}
           </div>
+
+          {category !== '業務' && category !== 'メモ' && isAllDay && (
+            <div>
+              <label>何日間</label>
+              <select
+                className="w-full p-2 border rounded text-black"
+                value={days}
+                onChange={(e) => setDays(Number(e.target.value))}
+              >
+                {[...Array(30)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1} 日間
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {category !== '業務' && category !== 'メモ' && !isAllDay && (
             <>
@@ -344,9 +364,8 @@ export default function Home() {
         </div>
       )}
 
-      {/* 一覧表示（横並び） */}
+      {/* 一覧 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
-        {/* 管理タスク */}
         <div>
           <h2 className="text-xl font-bold">管理タスク</h2>
           {visibleTasks.map((task) => (
@@ -371,7 +390,7 @@ export default function Home() {
                     onClick={() => {
                       setTitle(task.title);
                       setDeadline(task.deadline);
-                      setCategory('業務'); // 修正時は業務に固定
+                      setCategory('業務');
                       setTasks((prev) => prev.filter((t) => t.id !== task.id));
                       toast.success('タスクを修正モードで開きました');
                     }}
@@ -390,7 +409,6 @@ export default function Home() {
           ))}
         </div>
 
-        {/* メモ一覧 */}
         <div>
           <h2 className="text-xl font-bold">メモ一覧</h2>
           {memos.map((memo) => (
