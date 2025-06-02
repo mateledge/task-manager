@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
+import toast, { Toaster } from 'react-hot-toast';
 
 type Task = {
   id: number;
@@ -35,7 +36,7 @@ export default function Home() {
   const startVoiceInput = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("このブラウザは音声入力に対応していません。");
+      toast.error("このブラウザは音声入力に対応していません。");
       return;
     }
 
@@ -52,7 +53,7 @@ export default function Home() {
     };
 
     recognition.onerror = () => {
-      alert("音声認識中にエラーが発生しました。");
+      toast.error("音声認識中にエラーが発生しました。");
     };
   };
 
@@ -93,7 +94,11 @@ export default function Home() {
       });
 
       const data = await res.json();
-      if (!res.ok) alert(data.error || 'Googleカレンダー登録に失敗しました');
+      if (!res.ok) {
+        toast.error(data.error || 'Googleカレンダー登録に失敗しました');
+      } else {
+        toast.success('登録完了しました');
+      }
     }
 
     setTitle('');
@@ -122,6 +127,7 @@ export default function Home() {
   if (!session) {
     return (
       <main className="text-white p-8">
+        <Toaster position="top-right" />
         <p>ログインしていません</p>
         <button
           onClick={() => signIn('google', {
@@ -139,6 +145,7 @@ export default function Home() {
 
   return (
     <main className="max-w-xl mx-auto p-4 space-y-6">
+      <Toaster position="top-right" />
       <div className="flex justify-between items-center">
         <p className="text-white">こんにちは、{session.user?.name} さん</p>
         <button
