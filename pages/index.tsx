@@ -1,3 +1,4 @@
+// pages/index.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,6 +10,10 @@ type Task = {
   title: string;
   category: '業務' | 'メモ' | '外出' | '来客' | 'WEB' | 'NKE' | '重要' | 'PB';
   deadline: string;
+  startTime?: string;
+  duration?: string;
+  isAllDay?: boolean;
+  days?: number;
   completed: boolean;
 };
 
@@ -17,22 +22,33 @@ type Memo = {
   title: string;
 };
 
-export default function Page() {
+export default function Home() {
   const { data: session, status } = useSession();
 
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [memos, setMemos] = useState<Memo[]>([]);
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('tasks');
+      return stored ? JSON.parse(stored) : [];
+    }
+    return [];
+  });
+
+  const [memos, setMemos] = useState<Memo[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('memos');
+      return stored ? JSON.parse(stored) : [];
+    }
+    return [];
+  });
+
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<Task['category']>('業務');
   const [deadline, setDeadline] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [duration, setDuration] = useState('');
+  const [isAllDay, setIsAllDay] = useState(false);
+  const [days, setDays] = useState(1);
   const [showForm, setShowForm] = useState(false);
-
-  useEffect(() => {
-    const storedTasks = localStorage.getItem('tasks');
-    const storedMemos = localStorage.getItem('memos');
-    if (storedTasks) setTasks(JSON.parse(storedTasks));
-    if (storedMemos) setMemos(JSON.parse(storedMemos));
-  }, []);
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -42,32 +58,47 @@ export default function Page() {
     localStorage.setItem('memos', JSON.stringify(memos));
   }, [memos]);
 
-  const handleAddTask = () => {
+  const handleAddTask = async () => {
     if (!title) return;
 
     if (category === 'メモ') {
-      const newMemo: Memo = { id: Date.now(), title };
-      const updated = [...memos, newMemo];
-      setMemos(updated);
-      localStorage.setItem('backupMemos', JSON.stringify(updated));
+      const newMemo: Memo = {
+        id: Date.now(),
+        title,
+      };
+      const updatedMemos = [...memos, newMemo];
+      setMemos(updatedMemos);
+      localStorage.setItem('backupMemos', JSON.stringify(updatedMemos));
       setTitle('');
       return;
     }
 
     if (!deadline) return;
 
+    const isSpecialCategory = ['業務', 'メモ'].includes(category);
+
     const newTask: Task = {
       id: Date.now(),
       title,
       category,
       deadline,
+      startTime: category === '業務' || isAllDay ? undefined : startTime,
+      duration: category === '業務' || isAllDay ? undefined : duration,
+      isAllDay: isSpecialCategory ? undefined : isAllDay,
+      days: isSpecialCategory ? undefined : isAllDay ? days : undefined,
       completed: false,
     };
-    const updated = [...tasks, newTask];
-    setTasks(updated);
-    localStorage.setItem('backupTasks', JSON.stringify(updated));
+
+    const updatedTasks = [...tasks, newTask];
+    setTasks(updatedTasks);
+    localStorage.setItem('backupTasks', JSON.stringify(updatedTasks));
+
     setTitle('');
     setDeadline('');
+    setStartTime('');
+    setDuration('');
+    setIsAllDay(false);
+    setDays(1);
     setShowForm(false);
   };
 
@@ -84,8 +115,25 @@ export default function Page() {
   const handleRestoreBackup = () => {
     const taskBackup = localStorage.getItem('backupTasks');
     const memoBackup = localStorage.getItem('backupMemos');
-    if (taskBackup) setTasks(JSON.parse(taskBackup));
-    if (memoBackup) setMemos(JSON.parse(memoBackup));
+
+    if (taskBackup) {
+      try {
+        const parsed = JSON.parse(taskBackup);
+        if (Array.isArray(parsed)) setTasks(parsed);
+      } catch {
+        toast.error('タスク復元に失敗しました');
+      }
+    }
+
+    if (memoBackup) {
+      try {
+        const parsed = JSON.parse(memoBackup);
+        if (Array.isArray(parsed)) setMemos(parsed);
+      } catch {
+        toast.error('メモ復元に失敗しました');
+      }
+    }
+
     toast.success('データ復元しました');
   };
 
@@ -108,41 +156,11 @@ export default function Page() {
     return <main className="text-white p-8">読み込み中...</main>;
   }
 
-  if (!session) {
-    return (
-      <main className="text-white p-8">
-        <Toaster />
-        <p>ログインしていません</p>
-        <button
-          onClick={() =>
-            signIn('google', {
-              prompt: 'consent',
-              access_type: 'offline',
-              response_type: 'code',
-            })
-          }
-          className="bg-blue-600 px-4 py-2 mt-2 rounded"
-        >
-          Googleでログイン
-        </button>
-      </main>
-    );
-  }
-
   return (
-    <main className="max-w-7xl mx-auto p-4 text-white space-y-4">
-      <Toaster />
+    <main className="max-w-4xl mx-auto p-4 text-white space-y-4">
+      <Toaster position="top-right" />
 
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Task Manager</h1>
-        <button
-          onClick={() => signOut()}
-          className="bg-red-600 px-4 py-2 rounded text-white text-sm"
-        >
-          ログアウト
-        </button>
-      </div>
-
+      {/* ボタン系 */}
       <div className="flex justify-end gap-2">
         <button
           onClick={() => setShowForm(!showForm)}
@@ -158,34 +176,60 @@ export default function Page() {
         </button>
       </div>
 
+      {/* 入力フォーム */}
       {showForm && (
         <div className="space-y-3 border border-gray-400 p-4 rounded">
           <input
             className="w-full p-2 border rounded text-black"
-            placeholder="タイトル"
+            type="text"
+            placeholder="タスク名"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
-          <select
-            className="w-full p-2 border rounded text-black"
-            value={category}
-            onChange={(e) => setCategory(e.target.value as Task['category'])}
-          >
-            <option value="業務">業務</option>
-            <option value="メモ">メモ</option>
-            <option value="外出">外出</option>
-            <option value="来客">来客</option>
-            <option value="WEB">WEB</option>
-            <option value="NKE">NKE</option>
-            <option value="重要">重要</option>
-            <option value="PB">PB</option>
-          </select>
-          <input
-            className="w-full p-2 border rounded text-black"
-            type="date"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-          />
+
+          <div className="flex gap-2 items-center">
+            <select
+              className="w-1/3 p-2 border rounded text-black"
+              value={category}
+              onChange={(e) => setCategory(e.target.value as Task['category'])}
+            >
+              <option value="業務">業務</option>
+              <option value="メモ">メモ</option>
+              <option value="外出">外出</option>
+              <option value="来客">来客</option>
+              <option value="WEB">WEB</option>
+              <option value="NKE">NKE</option>
+              <option value="重要">重要</option>
+              <option value="PB">PB</option>
+            </select>
+
+            {category !== 'メモ' && (
+              <input
+                type="date"
+                className="w-2/3 p-2 border rounded text-black"
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
+              />
+            )}
+          </div>
+
+          {category !== '業務' && category !== 'メモ' && (
+            <>
+              <input
+                type="time"
+                className="w-full p-2 border rounded text-black"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+              />
+              <input
+                className="w-full p-2 border rounded text-black"
+                placeholder="所要時間（分）"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+              />
+            </>
+          )}
+
           <button
             className="w-full bg-blue-600 text-white py-2 rounded"
             onClick={handleAddTask}
@@ -195,6 +239,7 @@ export default function Page() {
         </div>
       )}
 
+      {/* 一覧 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
         <div>
           <h2 className="text-xl font-bold">管理タスク</h2>
@@ -215,15 +260,13 @@ export default function Page() {
                   >
                     {task.completed ? '戻す' : '完了'}
                   </button>
-                </div>
-                {task.completed && (
                   <button
                     className="text-red-600 underline"
                     onClick={() => handleDeleteTask(task.id)}
                   >
-                    完全削除
+                    削除
                   </button>
-                )}
+                </div>
               </div>
             </div>
           ))}
@@ -242,7 +285,7 @@ export default function Page() {
                   className="text-red-600 underline text-sm"
                   onClick={() => handleDeleteMemo(memo.id)}
                 >
-                  完全削除
+                  削除
                 </button>
               </div>
             </div>
