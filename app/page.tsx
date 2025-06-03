@@ -178,12 +178,17 @@ export default function Home() {
               <select className="w-[112px] text-center p-2 border rounded text-black" value={category} onChange={(e) => { const selected = e.target.value as Task['category']; setCategory(selected); if (selected === 'NKE') setTitle('NKE'); }}>
                 {['業務','メモ','外出','来客','WEB','NKE','重要','PB'].map(v => <option key={v} value={v}>{v}</option>)}
               </select>
-              {category !== 'メモ' && (
-                <label className="flex items-center gap-1 w-full">
-                  <span className="whitespace-nowrap">Day</span>
-                  <input type="date" className="w-32 p-2 border rounded text-black" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
-                </label>
-              )}
+              {category !== 'メモ' ? (
+  <label className="flex items-center gap-1 w-full">
+    <span className="whitespace-nowrap">Day</span>
+    <input type="date" className="w-32 p-2 border rounded text-black" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+  </label>
+) : (
+  <label className="invisible flex items-center gap-1 w-full">
+    <span className="whitespace-nowrap">Day</span>
+    <input type="date" className="w-32 p-2 border rounded text-black" value={deadline} onChange={() => {}} />
+  </label>
+)}
               <label className={`flex items-center gap-1 w-28 text-sm ${category === '業務' || category === 'メモ' ? 'invisible' : ''}`}>
                 <input type="checkbox" className="w-5 h-5" checked={isAllDay} onChange={() => setIsAllDay(!isAllDay)} /> 終日
               </label>
@@ -259,3 +264,4 @@ export default function Home() {
     </>
   );
 }
+
