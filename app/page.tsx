@@ -287,7 +287,7 @@ export default function Home() {
                   </label>
 
                   {category !== '業務' && (
-                    <label className="flex items-center gap-1 text-sm">
+                    <label className="flex items-center gap-1 w-24 text-sm">
                       <input
                         type="checkbox"
                         className="w-5 h-5"
@@ -300,10 +300,76 @@ export default function Home() {
                 </>
               )}
             </div>
-
-            {/* 残り：日数、時間選択、登録ボタン、一覧はそのまま */}
           </div>
         )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
+          <div>
+            <h2 className="text-xl font-bold">管理タスク</h2>
+            {visibleTasks.map((task) => (
+              <div
+                key={task.id}
+                className={`p-3 rounded border mb-4 shadow-md transition hover:scale-[1.01] ${
+                  task.completed ? 'bg-gray-400' : 'bg-white'
+                }`}
+              >
+                <div className="text-black font-bold">{task.title}</div>
+                <div className="text-sm text-gray-600">予定日: {task.deadline}</div>
+                <div className="mt-4 flex justify-between text-sm">
+                  <div className="flex gap-4">
+                    <button
+                      className="text-blue-600 underline"
+                      onClick={() => handleToggleComplete(task.id)}
+                    >
+                      {task.completed ? '戻す' : '完了'}
+                    </button>
+                    <button
+                      className="text-green-600 underline"
+                      onClick={() => {
+                        setTitle(task.title);
+                        setDeadline(task.deadline);
+                        setCategory('業務');
+                        setShowForm(true);
+                        setTasks((prev) => prev.filter((t) => t.id !== task.id));
+                        toast.success('タスクを修正モードで開きました');
+                      }}
+                    >
+                      修正
+                    </button>
+                  </div>
+                  {task.completed && (
+                    <button
+                      className="text-red-600 underline"
+                      onClick={() => handleDeleteTask(task.id)}
+                    >
+                      完全削除
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold">メモ一覧</h2>
+            {memos.map((memo) => (
+              <div
+                key={memo.id}
+                className="bg-white text-black p-3 rounded border mb-2 shadow"
+              >
+                <div className="flex justify-between items-center">
+                  <div className="font-bold">{memo.title}</div>
+                  <button
+                    className="text-red-600 underline text-sm"
+                    onClick={() => handleDeleteMemo(memo.id)}
+                  >
+                    完全削除
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </main>
     </>
   );
