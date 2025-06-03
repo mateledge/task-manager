@@ -90,7 +90,7 @@ export default function Home() {
     localStorage.setItem('backupTasks', JSON.stringify(updatedTasks));
 
     if (session && category !== '業務') {
-      const resolvedStart = isAllDay ? deadline : `${deadline}
+      const resolvedStart = isAllDay ? deadline : `${deadline}T${startTime || '00:00'}`;
       const colorMap = {
         'PB': '10',
         '外出': '11',
@@ -105,15 +105,6 @@ export default function Home() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ task: title, startDate: resolvedStart, duration, category, isAllDay, days, colorId })
-      });
-      const data = await res.json();
-      if (!res.ok) toast.error(data.error || 'Googleカレンダー登録に失敗しました');
-      else toast.success('登録完了しました');
-    }T${startTime || '00:00'}`;
-      const res = await fetch('/api/calendar/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ task: title, startDate: resolvedStart, duration, category, isAllDay, days })
       });
       const data = await res.json();
       if (!res.ok) toast.error(data.error || 'Googleカレンダー登録に失敗しました');
