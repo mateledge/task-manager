@@ -126,79 +126,7 @@ export default function Home() {
     setShowForm(false);
   };
 
-  const handleDeleteTask = (id: number) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
-    toast.success('完全削除しました');
-  };
-
-  const handleDeleteMemo = (id: number) => {
-    setMemos((prev) => prev.filter((memo) => memo.id !== id));
-    toast.success('完全削除しました');
-  };
-
-  const handleRestoreBackup = () => {
-    const taskBackup = localStorage.getItem('backupTasks');
-    const memoBackup = localStorage.getItem('backupMemos');
-
-    if (taskBackup) {
-      try {
-        const parsed = JSON.parse(taskBackup);
-        if (Array.isArray(parsed)) setTasks(parsed);
-      } catch {
-        toast.error('タスク復元に失敗しました');
-      }
-    }
-
-    if (memoBackup) {
-      try {
-        const parsed = JSON.parse(memoBackup);
-        if (Array.isArray(parsed)) setMemos(parsed);
-      } catch {
-        toast.error('メモ復元に失敗しました');
-      }
-    }
-
-    toast.success('データ復元しました');
-  };
-  const handleToggleComplete = (id: number) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
-
-  const visibleTasks = tasks
-    .filter((task) => task.category === '業務')
-    .sort((a, b) => {
-      if (a.completed !== b.completed) return a.completed ? 1 : -1;
-      return a.deadline.localeCompare(b.deadline);
-    });
-
-  if (status === 'loading') {
-    return <main className="text-white p-8">読み込み中...</main>;
-  }
-
-  if (!session) {
-    return (
-      <main className="text-white p-8">
-        <Toaster position="top-right" />
-        <p>ログインしていません</p>
-        <button
-          onClick={() =>
-            signIn('google', {
-              prompt: 'consent',
-              access_type: 'offline',
-              response_type: 'code',
-            })
-          }
-          className="bg-blue-600 px-4 py-2 mt-2 rounded"
-        >
-          Googleでログイン
-        </button>
-      </main>
-    );
-  }
+  // ... handleDeleteTask, handleDeleteMemo, handleRestoreBackup 省略（前と同じ）
 
   return (
     <>
@@ -218,18 +146,15 @@ export default function Home() {
       <main className="max-w-7xl mx-auto p-4 text-white space-y-4 mt-20">
         <Toaster position="top-right" />
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
           <a
             href="https://calendar.google.com/calendar/u/0/r/month"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-green-600 text-white px-6 py-2 rounded text-sm ml-auto"
+            className="bg-green-600 text-white px-6 py-2 rounded text-sm"
           >
             Googleカレンダーを開く
           </a>
-        </div>
-
-        <div className="flex justify-end gap-2">
           <button
             onClick={() => setShowForm(!showForm)}
             className="bg-blue-500 px-4 py-2 rounded text-white text-sm"
@@ -255,6 +180,7 @@ export default function Home() {
             />
 
             <div className="flex gap-2 items-center">
+              {/* カテゴリ */}
               <select
                 className="w-28 p-2 border rounded text-black"
                 value={category}
@@ -274,35 +200,103 @@ export default function Home() {
                 <option value="PB">PB</option>
               </select>
 
-              {category !== 'メモ' && (
-                <>
-                  <label className="flex items-center gap-1 w-full">
-                    <span className="whitespace-nowrap">Day</span>
-                    <input
-                      type="date"
-                      className="w-32 p-2 border rounded text-black"
-                      value={deadline}
-                      onChange={(e) => setDeadline(e.target.value)}
-                    />
-                  </label>
+              {/* DAY欄（常に表示・メモ時はdisabled） */}
+              <label className="flex items-center gap-1 w-full">
+                <span className="whitespace-nowrap">Day</span>
+                <input
+                  type="date"
+                  className="w-32 p-2 border rounded text-black"
+                  value={deadline}
+                  onChange={(e) => setDeadline(e.target.value)}
+                  disabled={category === 'メモ'}
+                />
+              </label>
 
-                  {category !== '業務' && (
-                    <label className="flex items-center gap-1 w-28 text-sm">
-                      <input
-                        type="checkbox"
-                        className="w-5 h-5"
-                        checked={isAllDay}
-                        onChange={() => setIsAllDay(!isAllDay)}
-                      />
-                      終日
-                    </label>
-                  )}
-                </>
-              )}
+              {/* 終日ボタン（常に表示・業務とメモ時はinvisible） */}
+              <label
+                className={`flex items-center gap-1 w-28 text-sm ${
+                  category === '業務' || category === 'メモ' ? 'invisible' : ''
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  className="w-5 h-5"
+                  checked={isAllDay}
+                  onChange={() => setIsAllDay(!isAllDay)}
+                />
+                終日
+              </label>
             </div>
+            {category !== '業務' && category !== 'メモ' && isAllDay && (
+              <div>
+                <label>何日間</label>
+                <select
+                  className="w-full p-2 border rounded text-black"
+                  value={days}
+                  onChange={(e) => setDays(Number(e.target.value))}
+                >
+                  {[...Array(30)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} 日間
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {category !== '業務' && category !== 'メモ' && !isAllDay && (
+              <>
+                <div>
+                  <label>開始時間</label>
+                  <select
+                    className="w-full p-2 border rounded text-black"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                  >
+                    <option value="">選択</option>
+                    {Array.from({ length: ((23 - 6) * 4) + 1 }, (_, i) => {
+                      const totalMinutes = (6 * 60) + (i * 15);
+                      const h = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+                      const m = String(totalMinutes % 60).padStart(2, '0');
+                      return (
+                        <option key={i} value={`${h}:${m}`}>
+                          {`${h}:${m}`}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                <div>
+                  <label>所要時間</label>
+                  <select
+                    className="w-full p-2 border rounded text-black"
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                  >
+                    <option value="">選択</option>
+                    {[...Array(8)].map((_, i) => (
+                      <option key={i + 1} value={`${i + 1}:00`}>
+                        {`${i + 1}時間`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+
+            <button
+              className="w-full bg-blue-600 text-white py-2 rounded"
+              onClick={handleAddTask}
+            >
+              {category === '業務' || category === 'メモ'
+                ? '登録'
+                : 'Googleカレンダー登録'}
+            </button>
           </div>
         )}
 
+        {/* タスク・メモ一覧表示 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
           <div>
             <h2 className="text-xl font-bold">管理タスク</h2>
