@@ -172,7 +172,7 @@ export default function Home() {
         </div>
 
         {showForm && (
-          <div className="space-y-3 border border-gray-400 p-4 rounded">
+          <div className="space-y-3 border border-gray-400 p-4 rounded min-h-[250px]">
             <input className="w-full p-2 border rounded text-black" type="text" placeholder="タスク名" value={title} onChange={(e) => setTitle(e.target.value)} />
             <div className="flex gap-2 items-center">
               <select className="w-28 p-2 border rounded text-black" value={category} onChange={(e) => { const selected = e.target.value as Task['category']; setCategory(selected); if (selected === 'NKE') setTitle('NKE'); }}>
