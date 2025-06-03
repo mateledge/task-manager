@@ -280,14 +280,14 @@ export default function Home() {
                     <span className="whitespace-nowrap">Day</span>
                     <input
                       type="date"
-                      className="w-40 p-2 border rounded text-black"
+                      className="w-32 p-2 border rounded text-black"
                       value={deadline}
                       onChange={(e) => setDeadline(e.target.value)}
                     />
                   </label>
 
                   {category !== '業務' && (
-                    <label className="flex items-center gap-1 w-24 text-sm">
+                    <label className="flex items-center gap-1 w-28 text-sm">
                       <input
                         type="checkbox"
                         className="w-5 h-5"
