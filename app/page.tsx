@@ -90,7 +90,7 @@ export default function Home() {
     localStorage.setItem('backupTasks', JSON.stringify(updatedTasks));
 
     if (session && category !== '業務') {
-      const resolvedStart = isAllDay ? deadline : `${deadline}T${startTime || '00:00'}`;
+      const resolvedStart = isAllDay ? deadline : `${deadline}
       const colorMap = {
         'PB': '10',
         '外出': '11',
@@ -255,3 +255,4 @@ export default function Home() {
     </>
   );
 }
+
