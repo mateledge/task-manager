@@ -11,6 +11,7 @@ const CATEGORY_COLOR_MAP: Record<string, string> = {
   'WEB': '3',     // ブドウ
   '重要': '9',    // ブルーベリー
   'NKE': '8',     // グラファイト
+  '作業': '6',     // ミカン
 };
 
 export async function POST(req: NextRequest) {
