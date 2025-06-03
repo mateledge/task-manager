@@ -160,20 +160,6 @@ export default function Home() {
 
     toast.success('データ復元しました');
   };
-  const handleToggleComplete = (id: number) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
-
-  const visibleTasks = tasks
-    .filter((task) => task.category === '業務')
-    .sort((a, b) => {
-      if (a.completed !== b.completed) return a.completed ? 1 : -1;
-      return a.deadline.localeCompare(b.deadline);
-    });
 
   return (
     <>
@@ -193,7 +179,8 @@ export default function Home() {
       <main className="max-w-7xl mx-auto p-4 text-white space-y-4 mt-20">
         <Toaster position="top-right" />
 
-        <div className="flex justify-end gap-2">
+        {/* 改行：2行目：Googleカレンダー */}
+        <div>
           <a
             href="https://calendar.google.com/calendar/u/0/r/month"
             target="_blank"
@@ -202,6 +189,10 @@ export default function Home() {
           >
             Googleカレンダーを開く
           </a>
+        </div>
+
+        {/* 改行：3行目：＋ボタン＋データ復元 */}
+        <div className="flex justify-end gap-2">
           <button
             onClick={() => setShowForm(!showForm)}
             className="bg-blue-500 px-4 py-2 rounded text-white text-sm"
@@ -215,7 +206,6 @@ export default function Home() {
             データ復元
           </button>
         </div>
-
         {showForm && (
           <div className="space-y-3 border border-gray-400 p-4 rounded">
             <input
@@ -272,11 +262,12 @@ export default function Home() {
               </label>
             </div>
 
-            {/* 残りの開始時間・所要時間・日数・登録ボタンなどはそのまま続く */}
+            {/* 以下、省略せずに残した方が良ければお知らせください（開始時間、所要時間、日数、登録ボタン） */}
+
           </div>
         )}
 
-        {/* 管理タスクとメモ一覧 */}
+        {/* 管理タスク・メモ一覧表示 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
           <div>
             <h2 className="text-xl font-bold">管理タスク</h2>
