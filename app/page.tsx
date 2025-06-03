@@ -164,7 +164,7 @@ export default function Home() {
         <div className="flex justify-end gap-2">
   <button onClick={() => setShowForm(!showForm)} className="bg-blue-500 px-4 py-2 rounded text-white text-sm">＋</button>
   <a href="https://calendar.google.com/calendar/u/0/r/month" target="_blank" rel="noopener noreferrer" className="bg-green-600 text-white px-6 py-2 rounded text-sm">
-    Googleカレンダーを開く
+    Googleカレンダー
   </a>
   <button onClick={handleRestoreBackup} className="bg-yellow-500 px-4 py-2 rounded text-black text-sm">データ復元</button>
 </div>
