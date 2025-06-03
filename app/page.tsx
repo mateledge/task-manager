@@ -162,34 +162,63 @@ export default function Home() {
       <main className="max-w-7xl mx-auto p-4 text-white space-y-4 mt-20">
         <Toaster position="top-right" />
         <div className="flex justify-end">
-  <a href="https://calendar.google.com/calendar/u/0/r/month" target="_blank" rel="noopener noreferrer" className="bg-green-600 text-white px-6 py-2 rounded text-sm">
-    Googleカレンダーを開く
-  </a>
-</div>
+          <a href="https://calendar.google.com/calendar/u/0/r/month" target="_blank" rel="noopener noreferrer" className="bg-green-600 text-white px-6 py-2 rounded text-sm">
+            Googleカレンダーを開く
+          </a>
+        </div>
         <div className="flex justify-end gap-2">
           <button onClick={() => setShowForm(!showForm)} className="bg-blue-500 px-4 py-2 rounded text-white text-sm">＋</button>
           <button onClick={handleRestoreBackup} className="bg-yellow-500 px-4 py-2 rounded text-black text-sm">データ復元</button>
         </div>
 
         {showForm && (
-          <div className="space-y-3 border border-gray-400 p-4 rounded min-h-[250px]">
+          <div className="space-y-3 border border-gray-400 p-4 rounded">
             <input className="w-full p-2 border rounded text-black" type="text" placeholder="タスク名" value={title} onChange={(e) => setTitle(e.target.value)} />
             <div className="flex gap-2 items-center">
-              <select className="min-w-[7rem] p-2 border rounded text-black" value={category} onChange={e => { const selected = e.target.value as Task['category']; setCategory(selected); if (selected === 'NKE') setTitle('NKE'); }}> { const selected = e.target.value as Task['category']; setCategory(selected); if (selected === 'NKE') setTitle('NKE'); }}>
+              <select className="w-28 p-2 border rounded text-black" value={category} onChange={(e) => { const selected = e.target.value as Task['category']; setCategory(selected); if (selected === 'NKE') setTitle('NKE'); }}>
                 {['業務','メモ','外出','来客','WEB','NKE','重要','PB'].map(v => <option key={v} value={v}>{v}</option>)}
               </select>
               {category !== 'メモ' && (
-  <label className="flex items-center gap-1 w-full">
-    <span className="whitespace-nowrap">Day</span>
-    <input type="date" className="w-32 p-2 border rounded text-black" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
-  </label>
-)}
+                <label className="flex items-center gap-1 w-full">
+                  <span className="whitespace-nowrap">Day</span>
+                  <input type="date" className="w-32 p-2 border rounded text-black" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+                </label>
+              )}
               <label className={`flex items-center gap-1 w-28 text-sm ${category === '業務' || category === 'メモ' ? 'invisible' : ''}`}>
                 <input type="checkbox" className="w-5 h-5" checked={isAllDay} onChange={() => setIsAllDay(!isAllDay)} /> 終日
               </label>
             </div>
-            {category !== '業務' && category !== 'メモ' && isAllDay && (<div><label>何日間</label><select className="w-full p-2 border rounded text-black" value={days} onChange={(e) => setDays(Number(e.target.value))}>{[...Array(30)].map((_, i) => <option key={i + 1} value={i + 1}>{i + 1} 日間</option>)}</select></div>)}
-            {category !== '業務' && category !== 'メモ' && !isAllDay && (<><div><label>開始時間</label><select className="w-full p-2 border rounded text-black" value={startTime} onChange={(e) => setStartTime(e.target.value)}><option value="">選択</option>{Array.from({ length: ((23 - 6) * 4) + 1 }, (_, i) => { const totalMinutes = (6 * 60) + (i * 15); const h = String(Math.floor(totalMinutes / 60)).padStart(2, '0'); const m = String(totalMinutes % 60).padStart(2, '0'); return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>; })}</select></div><div><label>所要時間</label><select className="w-full p-2 border rounded text-black" value={duration} onChange={(e) => setDuration(e.target.value)}><option value="">選択</option>{[...Array(8)].map((_, i) => <option key={i + 1} value={`${i + 1}:00`}>{`${i + 1}時間`}</option>)}</select></div></>)}
+            {category !== '業務' && category !== 'メモ' && isAllDay && (
+              <div>
+                <label>何日間</label>
+                <select className="w-full p-2 border rounded text-black" value={days} onChange={(e) => setDays(Number(e.target.value))}>
+                  {[...Array(30)].map((_, i) => <option key={i + 1} value={i + 1}>{i + 1} 日間</option>)}
+                </select>
+              </div>
+            )}
+            {category !== '業務' && category !== 'メモ' && !isAllDay && (
+              <>
+                <div>
+                  <label>開始時間</label>
+                  <select className="w-full p-2 border rounded text-black" value={startTime} onChange={(e) => setStartTime(e.target.value)}>
+                    <option value="">選択</option>
+                    {Array.from({ length: ((23 - 6) * 4) + 1 }, (_, i) => {
+                      const totalMinutes = (6 * 60) + (i * 15);
+                      const h = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+                      const m = String(totalMinutes % 60).padStart(2, '0');
+                      return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>;
+                    })}
+                  </select>
+                </div>
+                <div>
+                  <label>所要時間</label>
+                  <select className="w-full p-2 border rounded text-black" value={duration} onChange={(e) => setDuration(e.target.value)}>
+                    <option value="">選択</option>
+                    {[...Array(8)].map((_, i) => <option key={i + 1} value={`${i + 1}:00`}>{`${i + 1}時間`}</option>)}
+                  </select>
+                </div>
+              </>
+            )}
             <button className="w-full bg-blue-600 text-white py-2 rounded" onClick={handleAddTask}>{category === '業務' || category === 'メモ' ? '登録' : 'Googleカレンダー登録'}</button>
           </div>
         )}
@@ -206,7 +235,9 @@ export default function Home() {
                     <button className="text-blue-600 underline" onClick={() => handleToggleComplete(task.id)}>{task.completed ? '戻す' : '完了'}</button>
                     <button className="text-green-600 underline" onClick={() => { setTitle(task.title); setDeadline(task.deadline); setCategory('業務'); setShowForm(true); setTasks((prev) => prev.filter((t) => t.id !== task.id)); toast.success('タスクを修正モードで開きました'); }}>修正</button>
                   </div>
-                  {task.completed && (<button className="text-red-600 underline" onClick={() => handleDeleteTask(task.id)}>完全削除</button>)}
+                  {task.completed && (
+                    <button className="text-red-600 underline" onClick={() => handleDeleteTask(task.id)}>完全削除</button>
+                  )}
                 </div>
               </div>
             ))}
