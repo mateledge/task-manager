@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -48,6 +49,7 @@ export default function Home() {
   const [isAllDay, setIsAllDay] = useState(false);
   const [days, setDays] = useState(1);
   const [showForm, setShowForm] = useState(false);
+
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
@@ -200,6 +202,7 @@ export default function Home() {
       </main>
     );
   }
+
   return (
     <main className="max-w-7xl mx-auto p-4 text-white space-y-4">
       <Toaster position="top-right" />
@@ -398,12 +401,14 @@ export default function Home() {
                     修正
                   </button>
                 </div>
-                <button
-                  className="text-red-600 underline"
-                  onClick={() => handleDeleteTask(task.id)}
-                >
-                  完全削除
-                </button>
+                {task.completed && (
+                  <button
+                    className="text-red-600 underline"
+                    onClick={() => handleDeleteTask(task.id)}
+                  >
+                    完全削除
+                  </button>
+                )}
               </div>
             </div>
           ))}
