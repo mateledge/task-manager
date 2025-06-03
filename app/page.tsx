@@ -127,7 +127,6 @@ export default function Home() {
     setDays(1);
     setShowForm(false);
   };
-
   const handleDeleteTask = (id: number) => {
     setTasks((prev) => prev.filter((task) => task.id !== id));
     toast.success('完全削除しました');
@@ -264,7 +263,13 @@ export default function Home() {
             <select
               className="w-1/3 p-2 border rounded text-black"
               value={category}
-              onChange={(e) => setCategory(e.target.value as Task['category'])}
+              onChange={(e) => {
+                const selected = e.target.value as Task['category'];
+                setCategory(selected);
+                if (selected === 'NKE') {
+                  setTitle('NKE');
+                }
+              }}
             >
               <option value="業務">業務</option>
               <option value="メモ">メモ</option>
@@ -366,7 +371,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* 一覧（メモ＋タスク） */}
+      {/* 一覧表示 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
         <div>
           <h2 className="text-xl font-bold">管理タスク</h2>
