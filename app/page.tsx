@@ -161,10 +161,10 @@ export default function Home() {
 
       <main className="max-w-7xl mx-auto p-4 text-white space-y-4 mt-20">
         <Toaster position="top-right" />
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-center gap-2">
   <button onClick={() => setShowForm(!showForm)} className="bg-blue-500 px-4 py-2 rounded text-white text-sm">＋</button>
   <a href="https://calendar.google.com/calendar/u/0/r/month" target="_blank" rel="noopener noreferrer" className="bg-green-600 text-white px-6 py-2 rounded text-sm">
-    Googleカレンダー
+    Googleカレンダーを開く
   </a>
   <button onClick={handleRestoreBackup} className="bg-yellow-500 px-4 py-2 rounded text-black text-sm">データ復元</button>
 </div>
