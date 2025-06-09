@@ -172,7 +172,7 @@ export default function Home() {
   if (status === 'loading')
     return <main className="text-white p-8">読み込み中...</main>;
 
-  if (!session)
+  if (!session){
     return (
       <main className="text-white p-8">
         <Toaster position="top-right" />
@@ -190,7 +190,7 @@ export default function Home() {
         </button>
       </main>
     );
-
+}
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-50 bg-gray-800 flex justify-between items-center px-4 py-3 shadow-md">
