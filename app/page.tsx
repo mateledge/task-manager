@@ -407,20 +407,18 @@ export default function Home() {
             </button>
 
             {/* カテゴリが業務・メモ以外のとき、カレンダーを自動表示 */}
-            {category !== '業務' && category !== 'メモ' && (
-              <div className="mt-10 w-full" style={{ height: '600px' }}>
-                <iframe
-                  src="https://calendar.google.com/calendar/embed?src=taniguchi.mateledge%40gmail.com&ctz=Asia%2FTokyo" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
-                  style={{ border: 0 }}
-                  width="100%"
-                  height="100%"
-                  frameBorder="0"
-                  scrolling="no"
-                ></iframe>
-              </div>
-            )}
-          </div>
-        )}
+{category !== '業務' && category !== 'メモ' && (
+  <div className="mt-10 w-full" style={{ height: '600px' }}>
+    <iframe
+      src="https://calendar.google.com/calendar/embed?src=taniguchi.mateledge%40gmail.com&ctz=Asia%2FTokyo"
+      style={{ border: 0 }}
+      width="100%"  // ← ← ← ★ ここがポイント
+      height="100%"
+      frameBorder="0"
+      scrolling="no"
+    ></iframe>
+  </div>
+)}
 
         {/* タスク・メモの一覧表示 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
