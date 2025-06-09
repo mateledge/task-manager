@@ -410,7 +410,7 @@ export default function Home() {
             {category !== '業務' && category !== 'メモ' && (
               <div className="mt-10 w-full" style={{ height: '600px' }}>
                 <iframe
-                  src="https://calendar.google.com/calendar/embed?src=taniguchi.mateledge%40gmail.com&ctz=Asia%2FTokyo&hl=ja&mode=MONTH"
+                  src="https://calendar.google.com/calendar/embed?src=taniguchi.mateledge%40gmail.com&ctz=Asia%2FTokyo" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
                   style={{ border: 0 }}
                   width="100%"
                   height="100%"
