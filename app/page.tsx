@@ -332,23 +332,22 @@ export default function Home() {
                       const m = String(totalMinutes % 60).padStart(2, '0');
                       return <option key={i} value={`${h}:${m}`}>{`${h}:${m}`}</option>;
                     })}
-                    })}
                   </select>
                 </div>
                 <div>
                   <label>所要時間</label>
-                  <select
-                    className="w-full p-2 border rounded text-black"
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                  >
-                    <option value="">選択</option>
-                    {[...Array(8)].map((_, i) => (
-                      <option key={i + 1} value={`${i + 1}:00`}>
-                        {`${i + 1}時間`}
-                      </option>
-                    ))}
-                  </select>
+<select
+  className="w-full p-2 border rounded text-black"
+  value={duration}
+  onChange={(e) => setDuration(e.target.value)}
+>
+  <option value="">選択</option>
+  {[...Array(8)].map((_, i) => (
+    <option key={i + 1} value={`${i + 1}:00`}>
+      {`${i + 1}時間`}
+    </option>
+  ))}
+</select>
                 </div>
               </>
             )}
