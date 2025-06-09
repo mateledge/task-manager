@@ -364,23 +364,18 @@ export default function Home() {
             </button>
 
             {/* カテゴリが「業務」「メモ」以外のときにカレンダーを表示 */}
-            {category !== '業務' && category !== 'メモ' && (
-              <div
-                className="mt-10 w-full max-w-7xl mx-auto h-[600px]"
-                style={{ transform: 'scale(0.8)', transformOrigin: 'top left' }}
-              >
-                <iframe
-                  src="https://calendar.google.com/calendar/embed?src=taniguchi.mateledge%40gmail.com&ctz=Asia%2FTokyo&hl=ja&mode=MONTH"
-                  style={{ border: 0 }}
-                  width="100%"
-                  height="100%"
-                  frameBorder="0"
-                  scrolling="no"
-                ></iframe>
-              </div>
-            )}
-          </div>
-        )}
+{category !== '業務' && category !== 'メモ' && (
+  <div className="mt-10 w-full" style={{ height: '600px' }}>
+    <iframe
+      src="https://calendar.google.com/calendar/embed?src=taniguchi.mateledge%40gmail.com&ctz=Asia%2FTokyo&hl=ja&mode=MONTH"
+      style={{ border: 0 }}
+      width="100%"
+      height="100%"
+      frameBorder="0"
+      scrolling="no"
+    ></iframe>
+  </div>
+)}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
           <div>
