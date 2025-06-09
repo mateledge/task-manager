@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -39,6 +40,7 @@ export default function Home() {
     }
     return [];
   });
+
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<Task['category']>('業務');
   const [deadline, setDeadline] = useState('');
@@ -47,6 +49,7 @@ export default function Home() {
   const [isAllDay, setIsAllDay] = useState(false);
   const [days, setDays] = useState(1);
   const [showForm, setShowForm] = useState(false);
+  const [showCalendarEmbed, setShowCalendarEmbed] = useState(false); // ←追加
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -55,7 +58,6 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem('memos', JSON.stringify(memos));
   }, [memos]);
-
   const handleAddTask = async () => {
     if (!title) return;
 
@@ -86,7 +88,6 @@ export default function Home() {
     const updatedTasks = [...tasks, newTask];
     setTasks(updatedTasks);
     localStorage.setItem('backupTasks', JSON.stringify(updatedTasks));
-
     if (session && category !== '業務') {
       const resolvedStart = isAllDay ? deadline : `${deadline}T${startTime || '00:00'}`;
       const colorMap: { [key in Task['category']]?: string } = {
@@ -213,14 +214,12 @@ export default function Home() {
           >
             ＋
           </button>
-          <a
-            href="https://calendar.google.com/calendar/u/0/r/month"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setShowCalendarEmbed(!showCalendarEmbed)}
             className="bg-green-600 text-white px-6 py-2 rounded text-sm"
           >
             Googleカレンダー
-          </a>
+          </button>
           <button
             onClick={handleRestoreBackup}
             className="bg-yellow-500 px-4 py-2 rounded text-black text-sm"
@@ -417,6 +416,19 @@ export default function Home() {
             ))}
           </div>
         </div>
+
+        {showCalendarEmbed && (
+          <div className="mt-8 w-full h-[500px]">
+            <iframe
+              src="https://calendar.google.com/calendar/embed?src=your_calendar_id&ctz=Asia%2FTokyo"
+              style={{ border: 0 }}
+              width="100%"
+              height="100%"
+              frameBorder="0"
+              scrolling="no"
+            ></iframe>
+          </div>
+        )}
       </main>
     </>
   );
