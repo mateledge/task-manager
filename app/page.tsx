@@ -1,17 +1,10 @@
-
-// --- Next.jsでクライアントサイドの機能を使う宣言（必要） ---
 'use client';
 
-// --- Reactの状態管理・副作用フックをインポート ---
 import { useState, useEffect } from 'react';
-
-// --- NextAuthによるセッション取得・ログイン処理 ---
 import { useSession, signIn, signOut } from 'next-auth/react';
-
-// --- トースト通知ライブラリ（成功・失敗メッセージ） ---
 import toast, { Toaster } from 'react-hot-toast';
 
-// --- タスクの型定義（カテゴリは固定リスト） ---
+// --- タスクの型定義（カテゴリ9種、完了状態などを含む） ---
 type Task = {
   id: number;
   title: string;
@@ -24,17 +17,17 @@ type Task = {
   completed: boolean;
 };
 
-// --- メモの型定義（シンプル） ---
+// --- メモの型定義（タイトルのみ） ---
 type Memo = {
   id: number;
   title: string;
 };
 
-// --- メインコンポーネント ---
+// --- メインコンポーネント開始 ---
 export default function Home() {
-  const { data: session, status } = useSession(); // セッション状態（ログイン/未ログイン）
+  const { data: session, status } = useSession(); // Googleログインセッション取得
 
-  // --- 各種状態（初期値を設定） ---
+  // --- ステート変数定義 ---
   const [tasks, setTasks] = useState<Task[]>([]);
   const [memos, setMemos] = useState<Memo[]>([]);
   const [title, setTitle] = useState('');
@@ -44,9 +37,8 @@ export default function Home() {
   const [duration, setDuration] = useState('');
   const [isAllDay, setIsAllDay] = useState(false);
   const [days, setDays] = useState(1);
-  const [showForm, setShowForm] = useState(false); // 入力フォームの表示制御
-
-  // --- 初回マウント時：localStorageからデータを読み出し ---
+  const [showForm, setShowForm] = useState(false);
+  // --- 初回読み込み時：localStorageから読み出す ---
   useEffect(() => {
     const storedTasks = localStorage.getItem('tasks');
     if (storedTasks) setTasks(JSON.parse(storedTasks));
@@ -55,21 +47,21 @@ export default function Home() {
     if (storedMemos) setMemos(JSON.parse(storedMemos));
   }, []);
 
-  // --- タスクが変更されるたびに保存 ---
+  // --- タスク更新時に保存 ---
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  // --- メモが変更されるたびに保存 ---
+  // --- メモ更新時に保存 ---
   useEffect(() => {
     localStorage.setItem('memos', JSON.stringify(memos));
   }, [memos]);
 
-  // --- タスクまたはメモを追加する共通処理（Googleカレンダー連携あり） ---
+  // --- タスク追加処理（Googleカレンダー登録も含む） ---
   const handleAddTask = async () => {
-    if (!title) return; // タイトルが空なら処理しない
+    if (!title) return;
 
-    // --- メモカテゴリの場合は簡易保存のみ ---
+    // メモとして追加する場合
     if (category === 'メモ') {
       const newMemo: Memo = { id: Date.now(), title };
       const updatedMemos = [...memos, newMemo];
@@ -79,10 +71,10 @@ export default function Home() {
       return;
     }
 
-    if (!deadline) return; // 日付未入力もエラー扱い
+    if (!deadline) return;
 
-    const isSpecialCategory = ['業務', 'メモ'].includes(category); // Googleカレンダー非対象カテゴリ
-    // --- 新しいタスクの構築 ---
+    const isSpecialCategory = ['業務', 'メモ'].includes(category);
+
     const newTask: Task = {
       id: Date.now(),
       title,
@@ -94,12 +86,11 @@ export default function Home() {
       days: isSpecialCategory ? undefined : isAllDay ? days : undefined,
       completed: false,
     };
-
     const updatedTasks = [...tasks, newTask];
     setTasks(updatedTasks);
     localStorage.setItem('backupTasks', JSON.stringify(updatedTasks));
 
-    // --- GoogleカレンダーAPIに登録（業務以外の場合） ---
+    // --- Googleカレンダーに登録（業務以外） ---
     if (session && category !== '業務') {
       const resolvedStart = isAllDay ? deadline : `${deadline}T${startTime || '00:00'}`;
       const colorMap: { [key in Task['category']]?: string } = {
@@ -135,7 +126,7 @@ export default function Home() {
       }
     }
 
-    // --- 入力状態をリセット ---
+    // --- 入力項目を初期化 ---
     setTitle('');
     setDeadline('');
     setStartTime('');
@@ -144,18 +135,16 @@ export default function Home() {
     setDays(1);
     setShowForm(false);
   };
-  // --- タスクを完全削除 ---
+
   const handleDeleteTask = (id: number) => {
     setTasks((prev) => prev.filter((task) => task.id !== id));
     toast.success('完全削除しました');
   };
 
-  // --- メモを完全削除 ---
   const handleDeleteMemo = (id: number) => {
     setMemos((prev) => prev.filter((memo) => memo.id !== id));
     toast.success('完全削除しました');
   };
-
   // --- タスクの完了状態を切り替え ---
   const handleToggleComplete = (id: number) => {
     setTasks((prev) =>
@@ -163,7 +152,7 @@ export default function Home() {
     );
   };
 
-  // --- バックアップからタスク・メモを復元 ---
+  // --- ローカルストレージからタスクとメモを復元 ---
   const handleRestoreBackup = () => {
     const taskBackup = localStorage.getItem('backupTasks');
     const memoBackup = localStorage.getItem('backupMemos');
@@ -189,7 +178,7 @@ export default function Home() {
     toast.success('データ復元しました');
   };
 
-  // --- 「業務」カテゴリのみを表示するタスクリスト（完了優先） ---
+  // --- 表示対象の業務タスク（完了済みを後ろに） ---
   const visibleTasks = tasks
     .filter((t) => t.category === '業務')
     .sort((a, b) => {
@@ -197,12 +186,12 @@ export default function Home() {
       return a.deadline.localeCompare(b.deadline);
     });
 
-  // --- ログイン状態がまだ取得されていない場合 ---
+  // --- セッション取得中は「読み込み中...」を表示 ---
   if (status === 'loading') {
     return <main className="text-white p-8">読み込み中...</main>;
   }
 
-  // --- ログインしていない場合の画面 ---
+  // --- ログインしていない場合の表示 ---
   if (!session) {
     return (
       <main className="text-white p-8">
@@ -224,10 +213,10 @@ export default function Home() {
     );
   }
 
-  // --- ログイン済みの場合の画面表示 ---
+  // --- ログイン済みの場合のメイン表示 ---
   return (
     <>
-      {/* 上部ヘッダー：ロゴ、タイトル、ログアウトボタン */}
+      {/* ヘッダー：タイトルとログアウトボタン */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gray-800 flex justify-between items-center px-4 py-3 shadow-md">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="MATELEDGE Logo" className="w-12" />
@@ -241,11 +230,11 @@ export default function Home() {
         </button>
       </div>
 
-      {/* メイン画面：タスク・メモ・入力フォームなど */}
+      {/* メイン画面本体 */}
       <main className="max-w-7xl mx-auto p-4 text-white space-y-4 mt-20">
         <Toaster position="top-right" />
 
-        {/* 上部操作ボタン群 */}
+        {/* 上部操作ボタン（フォーム表示、カレンダーリンク、データ復元） */}
         <div className="flex justify-center gap-2">
           <button
             onClick={() => setShowForm(!showForm)}
@@ -268,7 +257,7 @@ export default function Home() {
             データ復元
           </button>
         </div>
-        {/* 入力フォームエリア（＋ボタンで開閉） */}
+        {/* 入力フォーム：showForm=trueのときのみ表示 */}
         {showForm && (
           <div className="space-y-3 border border-gray-400 p-4 rounded">
             {/* タスク名入力欄 */}
@@ -280,7 +269,7 @@ export default function Home() {
               onChange={(e) => setTitle(e.target.value)}
             />
 
-            {/* カテゴリ選択＋日付＋終日チェック */}
+            {/* カテゴリ選択 + 日付入力 + 終日チェック */}
             <div className="flex gap-2 items-center">
               {/* カテゴリ選択 */}
               <select
@@ -289,7 +278,7 @@ export default function Home() {
                 onChange={(e) => {
                   const selected = e.target.value as Task['category'];
                   setCategory(selected);
-                  if (selected === 'NKE') setTitle('NKE');
+                  if (selected === 'NKE') setTitle('NKE'); // NKEなら自動入力
                 }}
               >
                 {['業務', 'メモ', '外出', '来客', '作業', 'WEB', 'NKE', '重要', 'PB'].map((v) => (
@@ -299,7 +288,7 @@ export default function Home() {
                 ))}
               </select>
 
-              {/* 日付入力（メモカテゴリでは非表示） */}
+              {/* 日付入力（メモカテゴリは非表示） */}
               {category !== 'メモ' ? (
                 <label className="flex items-center gap-1 w-full">
                   <span className="whitespace-nowrap">Day</span>
@@ -321,6 +310,7 @@ export default function Home() {
                   />
                 </label>
               )}
+
               {/* 終日チェックボックス（業務・メモは非表示） */}
               <label
                 className={`flex items-center gap-1 w-28 text-sm ${
@@ -336,8 +326,7 @@ export default function Home() {
                 終日
               </label>
             </div>
-
-            {/* 日数選択（終日がONのとき） */}
+            {/* 日数選択（終日の場合のみ） */}
             {category !== '業務' && category !== 'メモ' && isAllDay && (
               <div>
                 <label>何日間</label>
@@ -355,7 +344,7 @@ export default function Home() {
               </div>
             )}
 
-            {/* 時間指定（終日がOFFのとき） */}
+            {/* 時間入力（終日でない場合） */}
             {category !== '業務' && category !== 'メモ' && !isAllDay && (
               <>
                 <div>
@@ -378,6 +367,7 @@ export default function Home() {
                     })}
                   </select>
                 </div>
+
                 <div>
                   <label>所要時間</label>
                   <select
@@ -395,8 +385,7 @@ export default function Home() {
                 </div>
               </>
             )}
-
-            {/* 登録ボタン（業務・メモ以外はカレンダー登録） */}
+            {/* 登録ボタン */}
             <button
               className="w-full bg-blue-600 text-white py-2 rounded"
               onClick={handleAddTask}
@@ -406,22 +395,25 @@ export default function Home() {
                 : 'Googleカレンダー登録'}
             </button>
 
-            {/* カテゴリが業務・メモ以外のとき、カレンダーを自動表示 */}
-{category !== '業務' && category !== 'メモ' && (
-  <div className="mt-10 w-full" style={{ height: '600px' }}>
-    <iframe
-      src="https://calendar.google.com/calendar/embed?src=taniguchi.mateledge%40gmail.com&ctz=Asia%2FTokyo"
-      style={{ border: 0 }}
-      width="100%"  // ← ← ← ★ ここがポイント
-      height="100%"
-      frameBorder="0"
-      scrolling="no"
-    ></iframe>
-  </div>
-)}
+            {/* Googleカレンダー表示（業務・メモ以外のカテゴリ時） */}
+            {category !== '業務' && category !== 'メモ' && (
+              <div className="mt-10 w-full" style={{ height: '600px' }}>
+                <iframe
+                  src="https://calendar.google.com/calendar/embed?src=taniguchi.mateledge%40gmail.com&ctz=Asia%2FTokyo&hl=ja&mode=MONTH"
+                  style={{ border: 0 }}
+                  width="100%"
+                  height="100%"
+                  frameBorder="0"
+                  scrolling="no"
+                ></iframe>
+              </div>
+            )}
+          </div>
+        )}
 
-        {/* タスク・メモの一覧表示 */}
+        {/* タスク＆メモ一覧 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:grid-flow-col-reverse">
+          {/* タスクリスト */}
           <div>
             <h2 className="text-xl font-bold">管理タスク</h2>
             {visibleTasks.map((task) => (
@@ -432,9 +424,7 @@ export default function Home() {
                 }`}
               >
                 <div className="text-black font-bold">{task.title}</div>
-                <div className="text-sm text-gray-600">
-                  予定日: {task.deadline}
-                </div>
+                <div className="text-sm text-gray-600">予定日: {task.deadline}</div>
                 <div className="mt-4 flex justify-between text-sm">
                   <div className="flex gap-4">
                     <button
@@ -470,6 +460,7 @@ export default function Home() {
             ))}
           </div>
 
+          {/* メモリスト */}
           <div>
             <h2 className="text-xl font-bold">メモ一覧</h2>
             {memos.map((memo) => (
