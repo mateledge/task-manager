@@ -49,7 +49,6 @@ export default function Home() {
   const [isAllDay, setIsAllDay] = useState(false);
   const [days, setDays] = useState(1);
   const [showForm, setShowForm] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false); // ← 追加：埋め込み表示用
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -185,7 +184,6 @@ export default function Home() {
               access_type: 'offline',
               response_type: 'code',
             })
-          }
           className="bg-blue-600 px-4 py-2 mt-2 rounded"
         >
           Googleでログイン
@@ -230,12 +228,6 @@ export default function Home() {
             className="bg-yellow-500 px-4 py-2 rounded text-black text-sm"
           >
             データ復元
-          </button>
-          <button
-            onClick={() => setShowCalendar(!showCalendar)}
-            className="bg-purple-600 text-white px-4 py-2 rounded text-sm"
-          >
-            カレンダー表示切替
           </button>
         </div>
         {showForm && (
@@ -298,7 +290,6 @@ export default function Home() {
                 終日
               </label>
             </div>
-
             {category !== '業務' && category !== 'メモ' && isAllDay && (
               <div>
                 <label>何日間</label>
@@ -336,19 +327,20 @@ export default function Home() {
                 </div>
                 <div>
                   <label>所要時間</label>
-<select
-  className="w-full p-2 border rounded text-black"
-  value={duration}
-  onChange={(e) => setDuration(e.target.value)}
->
-  <option value="">選択</option>
-  {[...Array(8)].map((_, i) => (
-    <option key={i + 1} value={`${i + 1}:00`}>
-      {`${i + 1}時間`}
-    </option>
-  ))}
-</select>
-                </div>
+                  <select
+                    className="w-full p-2 border rounded text-black"
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                  >
+                    <option value="">選択</option>
+                    {[...Array(8)].map((_, i) => (
+                      <option key={i + 1} value={`${i + 1}:00`}>
+                        {`${i + 1}時間`}
+                      </option>
+                    ))}
+                      ))}
+                    </select>
+                  </div>
               </>
             )}
 
@@ -360,6 +352,23 @@ export default function Home() {
                 ? '登録'
                 : 'Googleカレンダー登録'}
             </button>
+
+            {/* カテゴリが「業務」「メモ」以外のときに自動でカレンダーを表示 */}
+            {category !== '業務' && category !== 'メモ' && (
+              <div
+                className="mt-10 w-full max-w-7xl mx-auto h-[600px]"
+                style={{ transform: 'scale(0.8)', transformOrigin: 'top left' }}
+              >
+                <iframe
+                  src="https://calendar.google.com/calendar/embed?src=taniguchi.mateledge%40gmail.com&ctz=Asia%2FTokyo&hl=ja&mode=MONTH"
+                  style={{ border: 0 }}
+                  width="100%"
+                  height="100%"
+                  frameBorder="0"
+                  scrolling="no"
+                ></iframe>
+              </div>
+            )}
           </div>
         )}
 
@@ -432,20 +441,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-
-        {/* Googleカレンダーの埋め込み表示（切替式） */}
-        {showCalendar && (
-          <div className="mt-10 w-full max-w-7xl mx-auto h-[500px]">
-            <iframe
-              src="https://calendar.google.com/calendar/embed?src=taniguchi.mateledge%40gmail.com&ctz=Asia%2FTokyo&hl=ja"
-              style={{ border: 0 }}
-              width="100%"
-              height="100%"
-              frameBorder="0"
-              scrolling="no"
-            ></iframe>
-          </div>
-        )}
       </main>
     </>
   );
